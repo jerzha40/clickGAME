@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -16,82 +17,115 @@ public class Main extends ApplicationAdapter {
     private static final float VIRTUAL_WIDTH = 500;
     private static final float VIRTUAL_HEIGHT = 500;
 
-    private SpriteBatch batch; // 用于绘制2D图形的批处理器
-    private Texture image; // 游戏中显示的图片资源
-    private BitmapFont font; // 用于显示得分的字体
-    private int score; // 当前得分
-    private Vector3 touchPos; // 触摸位置，三维向量便于与摄像机转换结合使用
-    private OrthographicCamera camera; // 摄像机，用于管理视图坐标到屏幕坐标的转换
-    private Viewport viewport; // 视口，用于管理摄像机的适配与缩放
-    private OrthographicCamera UIcamera; // 摄像机，用于管理视图坐标到屏幕坐标的转换
-    private Viewport UIviewport; // 视口，用于管理摄像机的适配与缩放
+    private SpriteBatch batch;
+    private Texture image;
+    private Texture imageActive;
+    private Sprite sprite;
+    private Sprite sprite1, sprite2, sprite3;
+    private BitmapFont font;
+    private int score;
+    private Vector3 touchPos;
+    private OrthographicCamera camera;
+    private Viewport viewport;
+    private OrthographicCamera UIcamera;
+    private Viewport UIviewport;
+    private boolean spriteActive = false;
 
     @Override
     public void create() {
         batch = new SpriteBatch();
-        image = new Texture("libgdx.png");
+
+        image = new Texture("cat.png");
+        imageActive = new Texture("cat_active.png"); // 激活状态图片
+
+        sprite = new Sprite(image);
+        sprite.setPosition(0, 0);
+        sprite.setSize(150, 150);
+
+        sprite1 = new Sprite(image);
+        sprite1.setPosition(250, 0);
+        sprite1.setSize(150, 150);
+
+        sprite2 = new Sprite(image);
+        sprite2.setPosition(0, 250);
+        sprite2.setSize(150, 150);
+
+        sprite3 = new Sprite(image);
+        sprite3.setPosition(250, 250);
+        sprite3.setSize(150, 150);
+
         font = new BitmapFont();
+        font.getData().setScale(2.0f);
+        font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+
         score = 0;
         touchPos = new Vector3();
+
         camera = new OrthographicCamera();
-        viewport = new ScreenViewport(camera); // 使用ScreenViewport进行屏幕适配
+        viewport = new ScreenViewport(camera);
 
         UIcamera = new OrthographicCamera();
-        UIviewport = new ExtendViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, UIcamera); // 使用ExtendViewport进行虚拟分辨率适配
+        UIviewport = new ExtendViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, UIcamera);
+
         Gdx.app.log("Main", "Application created");
     }
 
     @Override
     public void render() {
+        if (Gdx.input.isTouched()) {
+            Gdx.app.log("Main", "Raw touch: (" + Gdx.input.getX() + ", " + Gdx.input.getY() + ")");
+            touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+            camera.unproject(touchPos);
+            Gdx.app.log("Main", "World touch: (" + touchPos.x + ", " + touchPos.y + ")");
 
-        if (Gdx.input.justTouched()) { // 检测是否有点击
-            touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0); // 获取点击位置
-            camera.unproject(touchPos); // 将屏幕坐标转换为世界坐标
-            Gdx.app.log("Main", "Touched at: (" + touchPos.x + ", " + touchPos.y + ")");
-
-            // 判断点击位置是否在图片范围内（图片绘制在140,210，尺寸为256x256）
-            if (touchPos.x >= 140 && touchPos.x <= 396 &&
-                    touchPos.y >= 210 && touchPos.y <= 466) {
-                score++; // 命中图片，得分加一
-                Gdx.app.log("Main", "Hit! Score: " + score);
-            } else {
-                Gdx.app.log("Main", "Missed the target area");
+            if (sprite.getBoundingRectangle().contains(touchPos.x, touchPos.y)) {
+                if (!spriteActive) {
+                    sprite.setTexture(imageActive);
+                    spriteActive = true;
+                    score++;
+                    Gdx.app.log("Main", "Hit! Score: " + score);
+                }
             }
+        } else if (spriteActive) {
+            sprite.setTexture(image);
+            spriteActive = false;
         }
 
-        ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f); // 清屏背景色
+        ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
 
-        viewport.apply(); // 应用视口设置
+        viewport.apply();
         camera.update();
-        batch.setProjectionMatrix(camera.combined); // 使用摄像机更新后的矩阵作为渲染基准
-
+        batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        batch.draw(image, 0, 0); // 绘制图片
-        batch.draw(image, 0, 500); // 绘制图片
-        batch.draw(image, 500, 500); // 绘制图片
-        batch.draw(image, 500, 0); // 绘制图片
+        sprite1.draw(batch);
+        sprite2.draw(batch);
+        sprite3.draw(batch);
+        sprite.draw(batch);
         batch.end();
 
-        UIviewport.apply(); // 应用视口设置
+        UIviewport.apply();
         UIcamera.update();
-        batch.setProjectionMatrix(UIcamera.combined); // 使用摄像机更新后的矩阵作为渲染基准
+        batch.setProjectionMatrix(UIcamera.combined);
         batch.begin();
-        font.draw(batch, "Score: " + score, 0, VIRTUAL_HEIGHT); // 显示得分
+        font.draw(batch, "Score: " + score, 0, VIRTUAL_HEIGHT);
         batch.end();
     }
 
     @Override
     public void resize(int width, int height) {
-        viewport.update(width, height, true); // 更新视口并保持相机居中
+        Gdx.app.log("Main", "Resized to: " + width + "x" + height);
+        viewport.update(width, height, true);
         camera.position.set(VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT / 2, 0);
-        UIviewport.update(width, height, true); // 更新视口并保持相机居中
+        UIviewport.update(width, height, true);
         UIcamera.position.set(VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT / 2, 0);
     }
 
     @Override
     public void dispose() {
-        batch.dispose(); // 释放资源
+        Gdx.app.log("Main", "Disposing resources");
+        batch.dispose();
         image.dispose();
+        imageActive.dispose();
         font.dispose();
         Gdx.app.log("Main", "Resources disposed");
     }
