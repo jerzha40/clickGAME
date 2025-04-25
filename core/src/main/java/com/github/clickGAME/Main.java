@@ -2,6 +2,7 @@ package com.github.clickGAME;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -27,7 +28,7 @@ public class Main extends ApplicationAdapter {
     private Texture watchAdIcon;
     private Texture[] walkTextures;
     private Sprite sprite;
-    private Sprite sprite1, sprite2, sprite3;
+    private Sprite sprite1, sprite2;
     private BitmapFont font;
     private int score;
     private int food;
@@ -45,6 +46,8 @@ public class Main extends ApplicationAdapter {
     private float moveSpeed = 50f;
     private boolean isMoving = false;
     private float moveDuration = 0;
+
+    private Preferences prefs;
 
     public Main(AdController adController) {
         this.adController = adController;
@@ -71,7 +74,6 @@ public class Main extends ApplicationAdapter {
         };
 
         sprite = new Sprite(image);
-        sprite.setPosition(VIRTUAL_WIDTH / 2f - 75, VIRTUAL_HEIGHT / 2f - 75);
         sprite.setSize(150, 150);
 
         sprite1 = new Sprite(watchAdIcon);
@@ -82,16 +84,10 @@ public class Main extends ApplicationAdapter {
         sprite2.setPosition(0, 250);
         sprite2.setSize(150, 150);
 
-        sprite3 = new Sprite(image);
-        sprite3.setPosition(250, 250);
-        sprite3.setSize(150, 150);
-
         font = new BitmapFont();
         font.getData().setScale(2.0f);
         font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
-        score = 0;
-        food = 3;
         touchPos = new Vector3();
         direction = new Vector2();
 
@@ -100,6 +96,14 @@ public class Main extends ApplicationAdapter {
 
         UIcamera = new OrthographicCamera();
         UIviewport = new ExtendViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, UIcamera);
+
+        prefs = Gdx.app.getPreferences("ClickCatSave");
+
+        score = prefs.getInteger("score", 0);
+        food = prefs.getInteger("food", 3);
+        float catX = prefs.getFloat("cat_x", VIRTUAL_WIDTH / 2f - 75);
+        float catY = prefs.getFloat("cat_y", VIRTUAL_HEIGHT / 2f - 75);
+        sprite.setPosition(catX, catY);
 
         Gdx.app.log("Main", "Application created");
     }
@@ -111,27 +115,25 @@ public class Main extends ApplicationAdapter {
         moveTimer -= delta;
 
         if (!isMoving && moveTimer <= 0) {
-            if (MathUtils.randomBoolean(0.2f)) { // 20% 概率开始移动
+            if (MathUtils.randomBoolean(0.2f)) {
                 direction.set(MathUtils.random(-1f, 1f), MathUtils.random(-1f, 1f)).nor();
                 moveDuration = MathUtils.random(1f, 2f);
                 isMoving = true;
                 walkFrameIndex = 0;
                 sprite.setTexture(walkTextures[walkFrameIndex]);
             }
-            moveTimer = MathUtils.random(2f, 4f); // 下一次检查移动的等待时间
+            moveTimer = MathUtils.random(2f, 4f);
         }
 
         if (isMoving) {
             sprite.translate(direction.x * moveSpeed * delta, direction.y * moveSpeed * delta);
             moveDuration -= delta;
 
-            // 保持在屏幕内
             if (sprite.getX() < 0 || sprite.getX() > VIRTUAL_WIDTH - sprite.getWidth())
                 direction.x *= -1;
             if (sprite.getY() < 0 || sprite.getY() > VIRTUAL_HEIGHT - sprite.getHeight())
                 direction.y *= -1;
 
-            // 播放移动动画帧
             walkFrameTimer += delta;
             if (walkFrameTimer > 0.2f) {
                 walkFrameIndex = (walkFrameIndex + 1) % walkTextures.length;
@@ -166,7 +168,6 @@ public class Main extends ApplicationAdapter {
                 }
             } else if (sprite2.getBoundingRectangle().contains(touchPos.x, touchPos.y)) {
                 if (!spriteActive && score >= 100) {
-                    sprite2.setTexture(foodIcon);
                     spriteActive = true;
                     score -= 100;
                     food += 1;
@@ -225,6 +226,13 @@ public class Main extends ApplicationAdapter {
         for (Texture t : walkTextures)
             t.dispose();
         font.dispose();
-        Gdx.app.log("Main", "Resources disposed");
+
+        prefs.putInteger("score", score);
+        prefs.putInteger("food", food);
+        prefs.putFloat("cat_x", sprite.getX());
+        prefs.putFloat("cat_y", sprite.getY());
+        prefs.flush();
+
+        Gdx.app.log("Main", "Resources disposed and progress saved");
     }
 }
