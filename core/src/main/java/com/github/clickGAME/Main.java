@@ -108,6 +108,14 @@ public class Main extends ApplicationAdapter {
         Gdx.app.log("Main", "Application created");
     }
 
+    private void saveProgress() {
+        prefs.putInteger("score", score);
+        prefs.putInteger("food", food);
+        prefs.putFloat("cat_x", sprite.getX());
+        prefs.putFloat("cat_y", sprite.getY());
+        prefs.flush();
+    }
+
     @Override
     public void render() {
         float delta = Gdx.graphics.getDeltaTime();
@@ -156,6 +164,7 @@ public class Main extends ApplicationAdapter {
                     sprite.setTexture(imageActive);
                     spriteActive = true;
                     score += 1;
+                    saveProgress();
                     Gdx.app.log("Main", "Clicked cat! Score: " + score);
                 }
             } else if (sprite1.getBoundingRectangle().contains(touchPos.x, touchPos.y)) {
@@ -163,6 +172,7 @@ public class Main extends ApplicationAdapter {
                     spriteActive = true;
                     adController.showRewardedAd(() -> {
                         score += 500;
+                        saveProgress();
                         Gdx.app.log("Main", "Reward received! Score: " + score);
                     });
                 }
@@ -171,6 +181,7 @@ public class Main extends ApplicationAdapter {
                     spriteActive = true;
                     score -= 100;
                     food += 1;
+                    saveProgress();
                     Gdx.app.log("Main", "Bought food! Food: " + food + " Score: " + score);
                 }
             }
@@ -226,13 +237,7 @@ public class Main extends ApplicationAdapter {
         for (Texture t : walkTextures)
             t.dispose();
         font.dispose();
-
-        prefs.putInteger("score", score);
-        prefs.putInteger("food", food);
-        prefs.putFloat("cat_x", sprite.getX());
-        prefs.putFloat("cat_y", sprite.getY());
-        prefs.flush();
-
+        saveProgress();
         Gdx.app.log("Main", "Resources disposed and progress saved");
     }
 }
