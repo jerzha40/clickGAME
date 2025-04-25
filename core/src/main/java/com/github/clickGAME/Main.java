@@ -85,14 +85,22 @@ public class Main extends ApplicationAdapter {
                 if (!spriteActive) {
                     sprite.setTexture(imageActive);
                     spriteActive = true;
+                    score += 1;
+                    Gdx.app.log("Main", "Clicked cat! Score: " + score);
+                }
+            } else if (sprite1.getBoundingRectangle().contains(touchPos.x, touchPos.y)) {
+                if (!spriteActive) {
+                    sprite1.setTexture(imageActive);
+                    spriteActive = true;
                     adController.showRewardedAd(() -> {
-                    score += 500;
-                    Gdx.app.log("Main", "Reward received! Score: " + score);
+                        score += 500;
+                        Gdx.app.log("Main", "Reward received! Score: " + score);
                     });
                 }
             }
         } else if (spriteActive) {
             sprite.setTexture(image);
+            sprite1.setTexture(image);
             spriteActive = false;
         }
 
@@ -106,6 +114,9 @@ public class Main extends ApplicationAdapter {
         sprite2.draw(batch);
         sprite3.draw(batch);
         sprite.draw(batch);
+        font.draw(batch, "+1", sprite.getX() + sprite.getWidth() / 2 - 10, sprite.getY() + sprite.getHeight() + 30);
+        font.draw(batch, "+500 (Ad)", sprite1.getX() + sprite1.getWidth() / 2 - 40,
+                sprite1.getY() + sprite1.getHeight() + 30);
         batch.end();
 
         UIviewport.apply();
