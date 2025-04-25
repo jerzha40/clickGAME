@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -22,6 +24,7 @@ public class Main extends ApplicationAdapter {
     private Texture image;
     private Texture imageActive;
     private Texture foodIcon;
+    private Texture[] walkTextures;
     private Sprite sprite;
     private Sprite sprite1, sprite2, sprite3;
     private BitmapFont font;
@@ -33,6 +36,12 @@ public class Main extends ApplicationAdapter {
     private OrthographicCamera UIcamera;
     private Viewport UIviewport;
     private boolean spriteActive = false;
+
+    private Vector2 direction;
+    private float moveTimer = 0;
+    private float walkFrameTimer = 0;
+    private int walkFrameIndex = 0;
+    private float moveSpeed = 50f;
 
     public Main(AdController adController) {
         this.adController = adController;
@@ -47,12 +56,18 @@ public class Main extends ApplicationAdapter {
 
         batch = new SpriteBatch();
 
-        image = new Texture("cat.png");
+        image = new Texture("cat_idle.png");
         imageActive = new Texture("cat_active.png");
         foodIcon = new Texture("food_icon.png");
 
+        walkTextures = new Texture[] {
+                new Texture("cat_walk1.png"),
+                new Texture("cat_walk2.png"),
+                new Texture("cat_walk3.png")
+        };
+
         sprite = new Sprite(image);
-        sprite.setPosition(0, 0);
+        sprite.setPosition(VIRTUAL_WIDTH / 2f - 75, VIRTUAL_HEIGHT / 2f - 75);
         sprite.setSize(150, 150);
 
         sprite1 = new Sprite(image);
@@ -74,6 +89,7 @@ public class Main extends ApplicationAdapter {
         score = 0;
         food = 3;
         touchPos = new Vector3();
+        direction = new Vector2();
 
         camera = new OrthographicCamera();
         viewport = new ScreenViewport(camera);
@@ -86,6 +102,31 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void render() {
+        float delta = Gdx.graphics.getDeltaTime();
+
+        moveTimer -= delta;
+        if (moveTimer <= 0) {
+            direction.set(MathUtils.random(-1f, 1f), MathUtils.random(-1f, 1f)).nor();
+            moveTimer = MathUtils.random(1f, 3f);
+        }
+
+        // 移动猫咪
+        sprite.translate(direction.x * moveSpeed * delta, direction.y * moveSpeed * delta);
+
+        // 保持在屏幕内
+        if (sprite.getX() < 0 || sprite.getX() > VIRTUAL_WIDTH - sprite.getWidth())
+            direction.x *= -1;
+        if (sprite.getY() < 0 || sprite.getY() > VIRTUAL_HEIGHT - sprite.getHeight())
+            direction.y *= -1;
+
+        // 播放移动动画帧
+        walkFrameTimer += delta;
+        if (walkFrameTimer > 0.2f) {
+            walkFrameIndex = (walkFrameIndex + 1) % walkTextures.length;
+            sprite.setTexture(walkTextures[walkFrameIndex]);
+            walkFrameTimer = 0;
+        }
+
         if (Gdx.input.isTouched()) {
             touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
             camera.unproject(touchPos);
@@ -116,7 +157,7 @@ public class Main extends ApplicationAdapter {
                 }
             }
         } else if (spriteActive) {
-            sprite.setTexture(image);
+            sprite.setTexture(walkTextures[walkFrameIndex]);
             sprite1.setTexture(image);
             sprite2.setTexture(foodIcon);
             spriteActive = false;
@@ -164,6 +205,8 @@ public class Main extends ApplicationAdapter {
         image.dispose();
         imageActive.dispose();
         foodIcon.dispose();
+        for (Texture t : walkTextures)
+            t.dispose();
         font.dispose();
         Gdx.app.log("Main", "Resources disposed");
     }
