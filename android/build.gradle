@@ -32,7 +32,7 @@ android {
   }
   defaultConfig {
     applicationId 'com.github.clickGAME'
-    minSdkVersion 19
+    minSdkVersion 24
     targetSdkVersion 35
     versionCode 1
     versionName "1.0"
@@ -54,11 +54,13 @@ android {
 repositories {
   // needed for AAPT2, may be needed for other tools
   google()
+  mavenCentral()
 }
 
 configurations { natives }
 
 dependencies {
+  implementation 'com.google.android.gms:play-services-ads:24.2.0'
   coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
   implementation "com.badlogicgames.gdx:gdx-backend-android:$gdxVersion"
   implementation project(':core')

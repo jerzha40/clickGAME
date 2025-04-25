@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class Main extends ApplicationAdapter {
+    private AdController adController;
     private static final float VIRTUAL_WIDTH = 500;
     private static final float VIRTUAL_HEIGHT = 500;
 
@@ -31,12 +32,16 @@ public class Main extends ApplicationAdapter {
     private Viewport UIviewport;
     private boolean spriteActive = false;
 
+    public Main(AdController adController) {
+        this.adController = adController;
+    }
+
     @Override
     public void create() {
         batch = new SpriteBatch();
 
         image = new Texture("cat.png");
-        imageActive = new Texture("cat_active.png"); // 激活状态图片
+        imageActive = new Texture("cat_active.png");
 
         sprite = new Sprite(image);
         sprite.setPosition(0, 0);
@@ -73,17 +78,17 @@ public class Main extends ApplicationAdapter {
     @Override
     public void render() {
         if (Gdx.input.isTouched()) {
-            Gdx.app.log("Main", "Raw touch: (" + Gdx.input.getX() + ", " + Gdx.input.getY() + ")");
             touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
             camera.unproject(touchPos);
-            Gdx.app.log("Main", "World touch: (" + touchPos.x + ", " + touchPos.y + ")");
 
             if (sprite.getBoundingRectangle().contains(touchPos.x, touchPos.y)) {
                 if (!spriteActive) {
                     sprite.setTexture(imageActive);
                     spriteActive = true;
-                    score++;
-                    Gdx.app.log("Main", "Hit! Score: " + score);
+                    adController.showRewardedAd(() -> {
+                    score += 500;
+                    Gdx.app.log("Main", "Reward received! Score: " + score);
+                    });
                 }
             }
         } else if (spriteActive) {
