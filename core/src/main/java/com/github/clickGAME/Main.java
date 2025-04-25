@@ -21,10 +21,12 @@ public class Main extends ApplicationAdapter {
     private SpriteBatch batch;
     private Texture image;
     private Texture imageActive;
+    private Texture foodIcon;
     private Sprite sprite;
     private Sprite sprite1, sprite2, sprite3;
     private BitmapFont font;
     private int score;
+    private int food;
     private Vector3 touchPos;
     private OrthographicCamera camera;
     private Viewport viewport;
@@ -47,6 +49,7 @@ public class Main extends ApplicationAdapter {
 
         image = new Texture("cat.png");
         imageActive = new Texture("cat_active.png");
+        foodIcon = new Texture("food_icon.png");
 
         sprite = new Sprite(image);
         sprite.setPosition(0, 0);
@@ -56,7 +59,7 @@ public class Main extends ApplicationAdapter {
         sprite1.setPosition(250, 0);
         sprite1.setSize(150, 150);
 
-        sprite2 = new Sprite(image);
+        sprite2 = new Sprite(foodIcon);
         sprite2.setPosition(0, 250);
         sprite2.setSize(150, 150);
 
@@ -69,6 +72,7 @@ public class Main extends ApplicationAdapter {
         font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
         score = 0;
+        food = 3;
         touchPos = new Vector3();
 
         camera = new OrthographicCamera();
@@ -102,10 +106,19 @@ public class Main extends ApplicationAdapter {
                         Gdx.app.log("Main", "Reward received! Score: " + score);
                     });
                 }
+            } else if (sprite2.getBoundingRectangle().contains(touchPos.x, touchPos.y)) {
+                if (!spriteActive && score >= 100) {
+                    sprite2.setTexture(foodIcon);
+                    spriteActive = true;
+                    score -= 100;
+                    food += 1;
+                    Gdx.app.log("Main", "Bought food! Food: " + food + " Score: " + score);
+                }
             }
         } else if (spriteActive) {
             sprite.setTexture(image);
             sprite1.setTexture(image);
+            sprite2.setTexture(foodIcon);
             spriteActive = false;
         }
 
@@ -122,6 +135,8 @@ public class Main extends ApplicationAdapter {
         font.draw(batch, "+1", sprite.getX() + sprite.getWidth() / 2 - 10, sprite.getY() + sprite.getHeight() + 30);
         font.draw(batch, "+500 (Ad)", sprite1.getX() + sprite1.getWidth() / 2 - 40,
                 sprite1.getY() + sprite1.getHeight() + 30);
+        font.draw(batch, "Buy Food", sprite2.getX() + sprite2.getWidth() / 2 - 40,
+                sprite2.getY() + sprite2.getHeight() + 30);
         batch.end();
 
         UIviewport.apply();
@@ -129,6 +144,7 @@ public class Main extends ApplicationAdapter {
         batch.setProjectionMatrix(UIcamera.combined);
         batch.begin();
         font.draw(batch, "Score: " + score, 0, VIRTUAL_HEIGHT);
+        font.draw(batch, "Food: " + food, 0, VIRTUAL_HEIGHT - 40);
         batch.end();
     }
 
@@ -147,6 +163,7 @@ public class Main extends ApplicationAdapter {
         batch.dispose();
         image.dispose();
         imageActive.dispose();
+        foodIcon.dispose();
         font.dispose();
         Gdx.app.log("Main", "Resources disposed");
     }
