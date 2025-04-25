@@ -15,8 +15,8 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class Main extends ApplicationAdapter {
     private AdController adController;
-    private static final float VIRTUAL_WIDTH = 500;
-    private static final float VIRTUAL_HEIGHT = 500;
+    private static float VIRTUAL_WIDTH;
+    private static float VIRTUAL_HEIGHT;
 
     private SpriteBatch batch;
     private Texture image;
@@ -38,6 +38,11 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void create() {
+        int width = Gdx.graphics.getWidth();
+        int height = Gdx.graphics.getHeight();
+        VIRTUAL_WIDTH = Math.min(width, height);
+        VIRTUAL_HEIGHT = Math.min(width, height);
+
         batch = new SpriteBatch();
 
         image = new Texture("cat.png");

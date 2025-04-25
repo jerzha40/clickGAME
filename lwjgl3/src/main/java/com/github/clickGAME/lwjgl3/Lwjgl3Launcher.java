@@ -22,7 +22,7 @@ public class Lwjgl3Launcher {
         configuration.setTitle("clickGAME");
         configuration.useVsync(true);
         configuration.setForegroundFPS(Lwjgl3ApplicationConfiguration.getDisplayMode().refreshRate + 1);
-        configuration.setWindowedMode(1000, 500);
+        configuration.setWindowedMode(1206, 540);
         configuration.setWindowIcon("libgdx128.png", "libgdx64.png", "libgdx32.png", "libgdx16.png");
         return configuration;
     }
