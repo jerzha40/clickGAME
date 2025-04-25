@@ -42,6 +42,8 @@ public class Main extends ApplicationAdapter {
     private float walkFrameTimer = 0;
     private int walkFrameIndex = 0;
     private float moveSpeed = 50f;
+    private boolean isMoving = false;
+    private float moveDuration = 0;
 
     public Main(AdController adController) {
         this.adController = adController;
@@ -105,26 +107,40 @@ public class Main extends ApplicationAdapter {
         float delta = Gdx.graphics.getDeltaTime();
 
         moveTimer -= delta;
-        if (moveTimer <= 0) {
-            direction.set(MathUtils.random(-1f, 1f), MathUtils.random(-1f, 1f)).nor();
-            moveTimer = MathUtils.random(1f, 3f);
+
+        if (!isMoving && moveTimer <= 0) {
+            if (MathUtils.randomBoolean(0.2f)) { // 20% 概率开始移动
+                direction.set(MathUtils.random(-1f, 1f), MathUtils.random(-1f, 1f)).nor();
+                moveDuration = MathUtils.random(1f, 2f);
+                isMoving = true;
+                walkFrameIndex = 0;
+                sprite.setTexture(walkTextures[walkFrameIndex]);
+            }
+            moveTimer = MathUtils.random(2f, 4f); // 下一次检查移动的等待时间
         }
 
-        // 移动猫咪
-        sprite.translate(direction.x * moveSpeed * delta, direction.y * moveSpeed * delta);
+        if (isMoving) {
+            sprite.translate(direction.x * moveSpeed * delta, direction.y * moveSpeed * delta);
+            moveDuration -= delta;
 
-        // 保持在屏幕内
-        if (sprite.getX() < 0 || sprite.getX() > VIRTUAL_WIDTH - sprite.getWidth())
-            direction.x *= -1;
-        if (sprite.getY() < 0 || sprite.getY() > VIRTUAL_HEIGHT - sprite.getHeight())
-            direction.y *= -1;
+            // 保持在屏幕内
+            if (sprite.getX() < 0 || sprite.getX() > VIRTUAL_WIDTH - sprite.getWidth())
+                direction.x *= -1;
+            if (sprite.getY() < 0 || sprite.getY() > VIRTUAL_HEIGHT - sprite.getHeight())
+                direction.y *= -1;
 
-        // 播放移动动画帧
-        walkFrameTimer += delta;
-        if (walkFrameTimer > 0.2f) {
-            walkFrameIndex = (walkFrameIndex + 1) % walkTextures.length;
-            sprite.setTexture(walkTextures[walkFrameIndex]);
-            walkFrameTimer = 0;
+            // 播放移动动画帧
+            walkFrameTimer += delta;
+            if (walkFrameTimer > 0.2f) {
+                walkFrameIndex = (walkFrameIndex + 1) % walkTextures.length;
+                sprite.setTexture(walkTextures[walkFrameIndex]);
+                walkFrameTimer = 0;
+            }
+
+            if (moveDuration <= 0) {
+                isMoving = false;
+                sprite.setTexture(image);
+            }
         }
 
         if (Gdx.input.isTouched()) {
@@ -157,7 +173,7 @@ public class Main extends ApplicationAdapter {
                 }
             }
         } else if (spriteActive) {
-            sprite.setTexture(walkTextures[walkFrameIndex]);
+            sprite.setTexture(image);
             sprite1.setTexture(image);
             sprite2.setTexture(foodIcon);
             spriteActive = false;
