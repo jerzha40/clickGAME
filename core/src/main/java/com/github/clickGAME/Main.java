@@ -24,6 +24,7 @@ public class Main extends ApplicationAdapter {
     private Texture image;
     private Texture imageActive;
     private Texture foodIcon;
+    private Texture watchAdIcon;
     private Texture[] walkTextures;
     private Sprite sprite;
     private Sprite sprite1, sprite2, sprite3;
@@ -61,6 +62,7 @@ public class Main extends ApplicationAdapter {
         image = new Texture("cat_idle.png");
         imageActive = new Texture("cat_active.png");
         foodIcon = new Texture("food_icon.png");
+        watchAdIcon = new Texture("watch_ad.png");
 
         walkTextures = new Texture[] {
                 new Texture("cat_walk1.png"),
@@ -72,7 +74,7 @@ public class Main extends ApplicationAdapter {
         sprite.setPosition(VIRTUAL_WIDTH / 2f - 75, VIRTUAL_HEIGHT / 2f - 75);
         sprite.setSize(150, 150);
 
-        sprite1 = new Sprite(image);
+        sprite1 = new Sprite(watchAdIcon);
         sprite1.setPosition(250, 0);
         sprite1.setSize(150, 150);
 
@@ -156,7 +158,6 @@ public class Main extends ApplicationAdapter {
                 }
             } else if (sprite1.getBoundingRectangle().contains(touchPos.x, touchPos.y)) {
                 if (!spriteActive) {
-                    sprite1.setTexture(imageActive);
                     spriteActive = true;
                     adController.showRewardedAd(() -> {
                         score += 500;
@@ -174,7 +175,7 @@ public class Main extends ApplicationAdapter {
             }
         } else if (spriteActive) {
             sprite.setTexture(image);
-            sprite1.setTexture(image);
+            sprite1.setTexture(watchAdIcon);
             sprite2.setTexture(foodIcon);
             spriteActive = false;
         }
@@ -187,7 +188,6 @@ public class Main extends ApplicationAdapter {
         batch.begin();
         sprite1.draw(batch);
         sprite2.draw(batch);
-        sprite3.draw(batch);
         sprite.draw(batch);
         font.draw(batch, "+1", sprite.getX() + sprite.getWidth() / 2 - 10, sprite.getY() + sprite.getHeight() + 30);
         font.draw(batch, "+500 (Ad)", sprite1.getX() + sprite1.getWidth() / 2 - 40,
@@ -221,6 +221,7 @@ public class Main extends ApplicationAdapter {
         image.dispose();
         imageActive.dispose();
         foodIcon.dispose();
+        watchAdIcon.dispose();
         for (Texture t : walkTextures)
             t.dispose();
         font.dispose();
