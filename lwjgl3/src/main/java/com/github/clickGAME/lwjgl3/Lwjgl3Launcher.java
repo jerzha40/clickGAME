@@ -29,16 +29,28 @@ public class Lwjgl3Launcher {
 
     static class DesktopAdController implements AdController {
         @Override
-        public void showRewardedAd(Runnable onReward) {
-            System.out.println("[Desktop] Simulating rewarded ad...");
-            try {
-                Thread.sleep(2000); // Simulate ad duration
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            System.out.println("[Desktop] Reward granted!");
-            if (onReward != null)
-                onReward.run();
+        public void showAdMobRewardedAd(Runnable onReward) {
+            System.out.println("[Desktop] Simulating AdMob rewarded ad...");
+            simulateAd(onReward);
+        }
+
+        @Override
+        public void showUnityRewardedAd(Runnable onReward) {
+            System.out.println("[Desktop] Simulating Unity rewarded ad...");
+            simulateAd(onReward);
+        }
+
+        private void simulateAd(Runnable onReward) {
+            new Thread(() -> {
+                try {
+                    Thread.sleep(2000); // Simulate ad duration
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("[Desktop] Reward granted!");
+                if (onReward != null)
+                    onReward.run();
+            }).start();
         }
     }
 }

@@ -4,23 +4,39 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
 import com.github.clickGAME.Main;
+import com.github.clickGAME.AdController;
+import com.google.gwt.user.client.Window;
 
 /** Launches the GWT application. */
 public class GwtLauncher extends GwtApplication {
+    @Override
+    public GwtApplicationConfiguration getConfig() {
+        GwtApplicationConfiguration cfg = new GwtApplicationConfiguration(true);
+        cfg.padVertical = 0;
+        cfg.padHorizontal = 0;
+        return cfg;
+    }
+
+    @Override
+    public ApplicationListener createApplicationListener() {
+        return new Main(new GwtAdController());
+    }
+
+    static class GwtAdController implements AdController {
         @Override
-        public GwtApplicationConfiguration getConfig () {
-            // Resizable application, uses available space in browser with no padding:
-            GwtApplicationConfiguration cfg = new GwtApplicationConfiguration(true);
-            cfg.padVertical = 0;
-            cfg.padHorizontal = 0;
-            return cfg;
-            // If you want a fixed size application, comment out the above resizable section,
-            // and uncomment below:
-            //return new GwtApplicationConfiguration(640, 480);
+        public void showAdMobRewardedAd(Runnable onReward) {
+            Window.alert("[GWT] Simulating AdMob rewarded ad...");
+            if (onReward != null) {
+                onReward.run();
+            }
         }
 
         @Override
-        public ApplicationListener createApplicationListener () {
-            return new Main();
+        public void showUnityRewardedAd(Runnable onReward) {
+            Window.alert("[GWT] Simulating Unity rewarded ad...");
+            if (onReward != null) {
+                onReward.run();
+            }
         }
+    }
 }
