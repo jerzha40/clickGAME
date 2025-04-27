@@ -65,6 +65,8 @@ dependencies {
   implementation "com.badlogicgames.gdx:gdx-backend-android:$gdxVersion"
   implementation project(':core')
 
+  implementation 'com.unity3d.ads:unity-ads:4.9.2'  // 最新稳定版
+  
   natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-arm64-v8a"
   natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-armeabi-v7a"
   natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-x86"

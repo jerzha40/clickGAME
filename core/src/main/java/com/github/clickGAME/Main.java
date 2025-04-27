@@ -26,9 +26,10 @@ public class Main extends ApplicationAdapter {
     private Texture imageActive;
     private Texture foodIcon;
     private Texture watchAdIcon;
+    private Texture unityAdIcon;
     private Texture[] walkTextures;
     private Sprite sprite;
-    private Sprite sprite1, sprite2;
+    private Sprite sprite1, sprite2, sprite3;
     private BitmapFont font;
     private int score;
     private int food;
@@ -66,6 +67,7 @@ public class Main extends ApplicationAdapter {
         imageActive = new Texture("cat_active.png");
         foodIcon = new Texture("food_icon.png");
         watchAdIcon = new Texture("watch_ad.png");
+        unityAdIcon = new Texture("unity_ad.png");
 
         walkTextures = new Texture[] {
                 new Texture("cat_walk1.png"),
@@ -83,6 +85,10 @@ public class Main extends ApplicationAdapter {
         sprite2 = new Sprite(foodIcon);
         sprite2.setPosition(0, 250);
         sprite2.setSize(150, 150);
+
+        sprite3 = new Sprite(unityAdIcon);
+        sprite3.setPosition(500, 0);
+        sprite3.setSize(150, 150);
 
         font = new BitmapFont();
         font.getData().setScale(2.0f);
@@ -170,10 +176,10 @@ public class Main extends ApplicationAdapter {
             } else if (sprite1.getBoundingRectangle().contains(touchPos.x, touchPos.y)) {
                 if (!spriteActive) {
                     spriteActive = true;
-                    adController.showRewardedAd(() -> {
+                    adController.showAdMobRewardedAd(() -> {
                         score += 500;
                         saveProgress();
-                        Gdx.app.log("Main", "Reward received! Score: " + score);
+                        Gdx.app.log("Main", "AdMob Reward received! Score: " + score);
                     });
                 }
             } else if (sprite2.getBoundingRectangle().contains(touchPos.x, touchPos.y)) {
@@ -184,11 +190,21 @@ public class Main extends ApplicationAdapter {
                     saveProgress();
                     Gdx.app.log("Main", "Bought food! Food: " + food + " Score: " + score);
                 }
+            } else if (sprite3.getBoundingRectangle().contains(touchPos.x, touchPos.y)) {
+                if (!spriteActive) {
+                    spriteActive = true;
+                    adController.showUnityRewardedAd(() -> {
+                        score += 1000;
+                        saveProgress();
+                        Gdx.app.log("Main", "Unity Ad Reward received! Score: " + score);
+                    });
+                }
             }
         } else if (spriteActive) {
             sprite.setTexture(image);
             sprite1.setTexture(watchAdIcon);
             sprite2.setTexture(foodIcon);
+            sprite3.setTexture(unityAdIcon);
             spriteActive = false;
         }
 
@@ -200,12 +216,15 @@ public class Main extends ApplicationAdapter {
         batch.begin();
         sprite1.draw(batch);
         sprite2.draw(batch);
+        sprite3.draw(batch);
         sprite.draw(batch);
         font.draw(batch, "+1", sprite.getX() + sprite.getWidth() / 2 - 10, sprite.getY() + sprite.getHeight() + 30);
-        font.draw(batch, "+500 (Ad)", sprite1.getX() + sprite1.getWidth() / 2 - 40,
+        font.draw(batch, "+500 (AdMob)", sprite1.getX() + sprite1.getWidth() / 2 - 40,
                 sprite1.getY() + sprite1.getHeight() + 30);
         font.draw(batch, "Buy Food", sprite2.getX() + sprite2.getWidth() / 2 - 40,
                 sprite2.getY() + sprite2.getHeight() + 30);
+        font.draw(batch, "+1000 (Unity Ad)", sprite3.getX() + sprite3.getWidth() / 2 - 60,
+                sprite3.getY() + sprite3.getHeight() + 30);
         batch.end();
 
         UIviewport.apply();
@@ -234,6 +253,7 @@ public class Main extends ApplicationAdapter {
         imageActive.dispose();
         foodIcon.dispose();
         watchAdIcon.dispose();
+        unityAdIcon.dispose();
         for (Texture t : walkTextures)
             t.dispose();
         font.dispose();
