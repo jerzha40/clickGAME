@@ -1,5 +1,7 @@
 package com.github.clickGAME;
 
+import java.util.Random;
+
 public class Cat {
     private float fullness; // 饱食度：0~100
     private float thirst; // 口渴度：0~100
@@ -7,6 +9,7 @@ public class Cat {
     private float happiness; // 开心值：0~100
 
     private float timeSinceLastUpdate = 0;
+    private Random random = new Random();
 
     public Cat() {
         fullness = 100;
@@ -32,7 +35,11 @@ public class Cat {
     }
 
     public void feed() {
-        fullness = Math.min(100, fullness + 30);
+        float chance = thirst / 100f;
+        if (random.nextFloat() < chance) {
+            fullness = Math.min(100, fullness + 30);
+        }
+        // 否则这次喂食没有生效
     }
 
     public void drink() {
