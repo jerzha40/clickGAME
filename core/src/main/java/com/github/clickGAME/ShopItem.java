@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 
 public class ShopItem {
     public enum Type {
-        FOOD, WATER, MEDICINE, TOY
+        FOOD, WATER, MEDICINE, TOY, ADS
     }
 
     private Type type;

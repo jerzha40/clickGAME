@@ -38,6 +38,7 @@ public class Main extends ApplicationAdapter {
     private Texture foodIcon;
     private Texture watchAdIcon;
     private Texture unityAdIcon;
+    private Texture waterIcon;
     private Texture[] walkTextures;
     private Sprite sprite;
     private BitmapFont font;
@@ -80,14 +81,13 @@ public class Main extends ApplicationAdapter {
         foodIcon = new Texture("food_icon.png");
         watchAdIcon = new Texture("watch_ad.png");
         unityAdIcon = new Texture("unity_ad.png");
+        waterIcon = new Texture("water_icon.png");
 
         walkTextures = new Texture[] {
                 new Texture("cat_walk1.png"),
                 new Texture("cat_walk2.png"),
                 new Texture("cat_walk3.png")
         };
-
-        // removed sprite initialization (handled in Cat)
 
         font = new BitmapFont();
         font.getData().setScale(2.0f);
@@ -109,14 +109,12 @@ public class Main extends ApplicationAdapter {
         float catX = prefs.getFloat("cat_x", VIRTUAL_WIDTH / 2f - 75);
         float catY = prefs.getFloat("cat_y", VIRTUAL_HEIGHT / 2f - 75);
         cat = new Cat(catX, catY);
-        // position already set in Cat constructor
-
-        // Removed duplicate cat initialization to prevent sprite=null error
 
         shopItems = new ArrayList<>();
-        shopItems.add(new ShopItem(ShopItem.Type.TOY, 0, watchAdIcon, 250, 0));
-        shopItems.add(new ShopItem(ShopItem.Type.FOOD, 100, foodIcon, 0, 250));
-        shopItems.add(new ShopItem(ShopItem.Type.MEDICINE, 0, unityAdIcon, 500, 0));
+        shopItems.add(new ShopItem(ShopItem.Type.ADS, 0, watchAdIcon, 300, 0));
+        shopItems.add(new ShopItem(ShopItem.Type.FOOD, 100, foodIcon, 0, 0));
+        shopItems.add(new ShopItem(ShopItem.Type.ADS, 0, unityAdIcon, 500, 0));
+        shopItems.add(new ShopItem(ShopItem.Type.WATER, 0, waterIcon, 125, 0));
 
         Gdx.app.log("Main", "Application created");
     }
@@ -201,6 +199,28 @@ public class Main extends ApplicationAdapter {
                                         saveProgress();
                                     });
                                     break;
+                                case WATER:
+                                    if (score >= item.getPrice()) {
+                                        score -= item.getPrice();
+                                        cat.drink();
+                                        saveProgress();
+                                    }
+                                    break;
+                                case ADS:
+                                    if (item.getSprite().getTexture() == watchAdIcon) {
+                                        adController.showAdMobRewardedAd(() -> {
+                                            score += 500;
+                                            cat.play();
+                                            saveProgress();
+                                        });
+                                    } else if (item.getSprite().getTexture() == unityAdIcon) {
+                                        adController.showUnityRewardedAd(() -> {
+                                            score += 1000;
+                                            cat.giveMedicine();
+                                            saveProgress();
+                                        });
+                                    }
+                                    break;
                             }
                         }
                     }
@@ -233,6 +253,16 @@ public class Main extends ApplicationAdapter {
                     break;
                 case MEDICINE:
                     font.draw(batch, "+1000 (Unity Ad)", textX, textY);
+                    break;
+                case WATER:
+                    font.draw(batch, "Buy Water", textX, textY);
+                    break;
+                case ADS:
+                    if (item.getSprite().getTexture() == watchAdIcon) {
+                        font.draw(batch, "+500 (AdMob)", textX, textY);
+                    } else if (item.getSprite().getTexture() == unityAdIcon) {
+                        font.draw(batch, "+1000 (Unity Ad)", textX, textY);
+                    }
                     break;
             }
         }
@@ -267,6 +297,7 @@ public class Main extends ApplicationAdapter {
         foodIcon.dispose();
         watchAdIcon.dispose();
         unityAdIcon.dispose();
+        waterIcon.dispose();
         for (Texture t : walkTextures)
             t.dispose();
         font.dispose();
