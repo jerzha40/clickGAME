@@ -87,8 +87,7 @@ public class Main extends ApplicationAdapter {
                 new Texture("cat_walk3.png")
         };
 
-        sprite = new Sprite(image);
-        sprite.setSize(150, 150);
+        // removed sprite initialization (handled in Cat)
 
         font = new BitmapFont();
         font.getData().setScale(2.0f);
@@ -110,9 +109,9 @@ public class Main extends ApplicationAdapter {
         float catX = prefs.getFloat("cat_x", VIRTUAL_WIDTH / 2f - 75);
         float catY = prefs.getFloat("cat_y", VIRTUAL_HEIGHT / 2f - 75);
         cat = new Cat(catX, catY);
-        sprite.setPosition(cat.getX(), cat.getY());
+        // position already set in Cat constructor
 
-        cat = new Cat();
+        // Removed duplicate cat initialization to prevent sprite=null error
 
         shopItems = new ArrayList<>();
         shopItems.add(new ShopItem(ShopItem.Type.TOY, 0, watchAdIcon, 250, 0));
@@ -135,31 +134,31 @@ public class Main extends ApplicationAdapter {
                 moveDuration = MathUtils.random(1f, 2f);
                 isMoving = true;
                 walkFrameIndex = 0;
-                sprite.setTexture(walkTextures[walkFrameIndex]);
+                cat.getSprite().setTexture(walkTextures[walkFrameIndex]);
             }
             moveTimer = MathUtils.random(2f, 4f);
         }
 
         if (isMoving) {
-            sprite.translate(direction.x * moveSpeed * delta, direction.y * moveSpeed * delta);
-            cat.setPosition(sprite.getX(), sprite.getY());
+            cat.getSprite().translate(direction.x * moveSpeed * delta, direction.y * moveSpeed * delta);
+            cat.setPosition(cat.getSprite().getX(), cat.getSprite().getY());
             moveDuration -= delta;
 
-            if (sprite.getX() < 0 || sprite.getX() > VIRTUAL_WIDTH - sprite.getWidth())
+            if (cat.getSprite().getX() < 0 || cat.getSprite().getX() > VIRTUAL_WIDTH - cat.getSprite().getWidth())
                 direction.x *= -1;
-            if (sprite.getY() < 0 || sprite.getY() > VIRTUAL_HEIGHT - sprite.getHeight())
+            if (cat.getSprite().getY() < 0 || cat.getSprite().getY() > VIRTUAL_HEIGHT - cat.getSprite().getHeight())
                 direction.y *= -1;
 
             walkFrameTimer += delta;
             if (walkFrameTimer > 0.2f) {
                 walkFrameIndex = (walkFrameIndex + 1) % walkTextures.length;
-                sprite.setTexture(walkTextures[walkFrameIndex]);
+                cat.getSprite().setTexture(walkTextures[walkFrameIndex]);
                 walkFrameTimer = 0;
             }
 
             if (moveDuration <= 0) {
                 isMoving = false;
-                sprite.setTexture(image);
+                cat.getSprite().setTexture(image);
             }
         }
 
@@ -167,9 +166,9 @@ public class Main extends ApplicationAdapter {
             touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
             camera.unproject(touchPos);
 
-            if (sprite.getBoundingRectangle().contains(touchPos.x, touchPos.y)) {
+            if (cat.getSprite().getBoundingRectangle().contains(touchPos.x, touchPos.y)) {
                 if (!spriteActive) {
-                    sprite.setTexture(imageActive);
+                    cat.getSprite().setTexture(imageActive);
                     spriteActive = true;
                     score += 1;
                     saveProgress();
@@ -208,7 +207,7 @@ public class Main extends ApplicationAdapter {
                 }
             }
         } else if (spriteActive) {
-            sprite.setTexture(image);
+            cat.getSprite().setTexture(image);
             spriteActive = false;
         }
 
@@ -221,7 +220,7 @@ public class Main extends ApplicationAdapter {
         for (ShopItem item : shopItems) {
             item.getSprite().draw(batch);
         }
-        sprite.draw(batch);
+        cat.getSprite().draw(batch);
         for (ShopItem item : shopItems) {
             float textX = item.getSprite().getX() + item.getSprite().getWidth() / 2 - 40;
             float textY = item.getSprite().getY() + item.getSprite().getHeight() + 30;

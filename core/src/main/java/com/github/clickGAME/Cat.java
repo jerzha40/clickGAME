@@ -2,6 +2,9 @@ package com.github.clickGAME;
 
 import java.util.Random;
 
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+
 public class Cat {
     private float x;
     private float y;
@@ -12,14 +15,18 @@ public class Cat {
 
     private float timeSinceLastUpdate = 0;
     private Random random = new Random();
+    private Sprite sprite;
 
     public Cat() {
         this(0, 0);
     }
 
     public Cat(float x, float y) {
+        this.sprite = new Sprite(new Texture("cat_idle.png"));
+        this.sprite.setSize(150, 150);
         this.x = x;
         this.y = y;
+        this.sprite.setPosition(x, y);
         fullness = 100;
         thirst = 100;
         health = 100;
@@ -44,7 +51,7 @@ public class Cat {
 
     public void feed() {
         float chance = thirst / 100f;
-        if (random.nextFloat() < chance) {
+        if (random.nextFloat() < chance * chance) {
             fullness = Math.min(100, fullness + 30);
         }
         // 否则这次喂食没有生效
@@ -78,6 +85,10 @@ public class Cat {
         return happiness;
     }
 
+    public Sprite getSprite() {
+        return sprite;
+    }
+
     public float getX() {
         return x;
     }
@@ -89,5 +100,6 @@ public class Cat {
     public void setPosition(float x, float y) {
         this.x = x;
         this.y = y;
+        this.sprite.setPosition(x, y);
     }
 }
