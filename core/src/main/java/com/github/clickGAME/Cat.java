@@ -3,6 +3,8 @@ package com.github.clickGAME;
 import java.util.Random;
 
 public class Cat {
+    private float x;
+    private float y;
     private float fullness; // 饱食度：0~100
     private float thirst; // 口渴度：0~100
     private float health; // 健康状态：0~100
@@ -12,6 +14,12 @@ public class Cat {
     private Random random = new Random();
 
     public Cat() {
+        this(0, 0);
+    }
+
+    public Cat(float x, float y) {
+        this.x = x;
+        this.y = y;
         fullness = 100;
         thirst = 100;
         health = 100;
@@ -68,5 +76,18 @@ public class Cat {
 
     public float getHappiness() {
         return happiness;
+    }
+
+    public float getX() {
+        return x;
+    }
+
+    public float getY() {
+        return y;
+    }
+
+    public void setPosition(float x, float y) {
+        this.x = x;
+        this.y = y;
     }
 }

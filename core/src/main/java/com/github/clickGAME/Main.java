@@ -23,8 +23,8 @@ public class Main extends ApplicationAdapter {
     private void saveProgress() {
         prefs.putInteger("score", score);
         prefs.putInteger("food", food);
-        prefs.putFloat("cat_x", sprite.getX());
-        prefs.putFloat("cat_y", sprite.getY());
+        prefs.putFloat("cat_x", cat.getX());
+        prefs.putFloat("cat_y", cat.getY());
         prefs.flush();
     }
 
@@ -109,7 +109,8 @@ public class Main extends ApplicationAdapter {
         food = prefs.getInteger("food", 3);
         float catX = prefs.getFloat("cat_x", VIRTUAL_WIDTH / 2f - 75);
         float catY = prefs.getFloat("cat_y", VIRTUAL_HEIGHT / 2f - 75);
-        sprite.setPosition(catX, catY);
+        cat = new Cat(catX, catY);
+        sprite.setPosition(cat.getX(), cat.getY());
 
         cat = new Cat();
 
@@ -141,6 +142,7 @@ public class Main extends ApplicationAdapter {
 
         if (isMoving) {
             sprite.translate(direction.x * moveSpeed * delta, direction.y * moveSpeed * delta);
+            cat.setPosition(sprite.getX(), sprite.getY());
             moveDuration -= delta;
 
             if (sprite.getX() < 0 || sprite.getX() > VIRTUAL_WIDTH - sprite.getWidth())
