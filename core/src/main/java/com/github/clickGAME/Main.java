@@ -49,6 +49,7 @@ public class Main extends ApplicationAdapter {
     private float moveDuration = 0;
 
     private Preferences prefs;
+    private Cat cat;
 
     public Main(AdController adController) {
         this.adController = adController;
@@ -111,6 +112,8 @@ public class Main extends ApplicationAdapter {
         float catY = prefs.getFloat("cat_y", VIRTUAL_HEIGHT / 2f - 75);
         sprite.setPosition(catX, catY);
 
+        cat = new Cat();
+
         Gdx.app.log("Main", "Application created");
     }
 
@@ -126,6 +129,7 @@ public class Main extends ApplicationAdapter {
     public void render() {
         float delta = Gdx.graphics.getDeltaTime();
 
+        cat.update(delta);
         moveTimer -= delta;
 
         if (!isMoving && moveTimer <= 0) {
@@ -178,6 +182,7 @@ public class Main extends ApplicationAdapter {
                     spriteActive = true;
                     adController.showAdMobRewardedAd(() -> {
                         score += 500;
+                        cat.play();
                         saveProgress();
                         Gdx.app.log("Main", "AdMob Reward received! Score: " + score);
                     });
@@ -187,6 +192,7 @@ public class Main extends ApplicationAdapter {
                     spriteActive = true;
                     score -= 100;
                     food += 1;
+                    cat.feed();
                     saveProgress();
                     Gdx.app.log("Main", "Bought food! Food: " + food + " Score: " + score);
                 }
@@ -195,6 +201,7 @@ public class Main extends ApplicationAdapter {
                     spriteActive = true;
                     adController.showUnityRewardedAd(() -> {
                         score += 1000;
+                        cat.giveMedicine();
                         saveProgress();
                         Gdx.app.log("Main", "Unity Ad Reward received! Score: " + score);
                     });
@@ -233,6 +240,10 @@ public class Main extends ApplicationAdapter {
         batch.begin();
         font.draw(batch, "Score: " + score, 0, VIRTUAL_HEIGHT);
         font.draw(batch, "Food: " + food, 0, VIRTUAL_HEIGHT - 40);
+        font.draw(batch, String.format("Health: %.0f", cat.getHealth()), 0, VIRTUAL_HEIGHT - 80);
+        font.draw(batch, String.format("Happiness: %.0f", cat.getHappiness()), 0, VIRTUAL_HEIGHT - 120);
+        font.draw(batch, String.format("Fullness: %.0f", cat.getFullness()), 0, VIRTUAL_HEIGHT - 160);
+        font.draw(batch, String.format("Thirst: %.0f", cat.getThirst()), 0, VIRTUAL_HEIGHT - 200);
         batch.end();
     }
 
