@@ -16,7 +16,18 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Main extends ApplicationAdapter {
+    private void saveProgress() {
+        prefs.putInteger("score", score);
+        prefs.putInteger("food", food);
+        prefs.putFloat("cat_x", sprite.getX());
+        prefs.putFloat("cat_y", sprite.getY());
+        prefs.flush();
+    }
+
     private AdController adController;
     private static float VIRTUAL_WIDTH;
     private static float VIRTUAL_HEIGHT;
@@ -29,7 +40,6 @@ public class Main extends ApplicationAdapter {
     private Texture unityAdIcon;
     private Texture[] walkTextures;
     private Sprite sprite;
-    private Sprite sprite1, sprite2, sprite3;
     private BitmapFont font;
     private int score;
     private int food;
@@ -50,6 +60,7 @@ public class Main extends ApplicationAdapter {
 
     private Preferences prefs;
     private Cat cat;
+    private List<ShopItem> shopItems;
 
     public Main(AdController adController) {
         this.adController = adController;
@@ -79,18 +90,6 @@ public class Main extends ApplicationAdapter {
         sprite = new Sprite(image);
         sprite.setSize(150, 150);
 
-        sprite1 = new Sprite(watchAdIcon);
-        sprite1.setPosition(250, 0);
-        sprite1.setSize(150, 150);
-
-        sprite2 = new Sprite(foodIcon);
-        sprite2.setPosition(0, 250);
-        sprite2.setSize(150, 150);
-
-        sprite3 = new Sprite(unityAdIcon);
-        sprite3.setPosition(500, 0);
-        sprite3.setSize(150, 150);
-
         font = new BitmapFont();
         font.getData().setScale(2.0f);
         font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
@@ -114,15 +113,12 @@ public class Main extends ApplicationAdapter {
 
         cat = new Cat();
 
-        Gdx.app.log("Main", "Application created");
-    }
+        shopItems = new ArrayList<>();
+        shopItems.add(new ShopItem(ShopItem.Type.TOY, 0, watchAdIcon, 250, 0));
+        shopItems.add(new ShopItem(ShopItem.Type.FOOD, 100, foodIcon, 0, 250));
+        shopItems.add(new ShopItem(ShopItem.Type.MEDICINE, 0, unityAdIcon, 500, 0));
 
-    private void saveProgress() {
-        prefs.putInteger("score", score);
-        prefs.putInteger("food", food);
-        prefs.putFloat("cat_x", sprite.getX());
-        prefs.putFloat("cat_y", sprite.getY());
-        prefs.flush();
+        Gdx.app.log("Main", "Application created");
     }
 
     @Override
@@ -175,43 +171,42 @@ public class Main extends ApplicationAdapter {
                     spriteActive = true;
                     score += 1;
                     saveProgress();
-                    Gdx.app.log("Main", "Clicked cat! Score: " + score);
                 }
-            } else if (sprite1.getBoundingRectangle().contains(touchPos.x, touchPos.y)) {
-                if (!spriteActive) {
-                    spriteActive = true;
-                    adController.showAdMobRewardedAd(() -> {
-                        score += 500;
-                        cat.play();
-                        saveProgress();
-                        Gdx.app.log("Main", "AdMob Reward received! Score: " + score);
-                    });
-                }
-            } else if (sprite2.getBoundingRectangle().contains(touchPos.x, touchPos.y)) {
-                if (!spriteActive && score >= 100) {
-                    spriteActive = true;
-                    score -= 100;
-                    food += 1;
-                    cat.feed();
-                    saveProgress();
-                    Gdx.app.log("Main", "Bought food! Food: " + food + " Score: " + score);
-                }
-            } else if (sprite3.getBoundingRectangle().contains(touchPos.x, touchPos.y)) {
-                if (!spriteActive) {
-                    spriteActive = true;
-                    adController.showUnityRewardedAd(() -> {
-                        score += 1000;
-                        cat.giveMedicine();
-                        saveProgress();
-                        Gdx.app.log("Main", "Unity Ad Reward received! Score: " + score);
-                    });
+            } else {
+                for (ShopItem item : shopItems) {
+                    if (item.isTouched(touchPos.x, touchPos.y)) {
+                        if (!spriteActive) {
+                            spriteActive = true;
+                            switch (item.getType()) {
+                                case FOOD:
+                                    if (score >= item.getPrice()) {
+                                        score -= item.getPrice();
+                                        food++;
+                                        cat.feed();
+                                        saveProgress();
+                                    }
+                                    break;
+                                case MEDICINE:
+                                    adController.showUnityRewardedAd(() -> {
+                                        score += 1000;
+                                        cat.giveMedicine();
+                                        saveProgress();
+                                    });
+                                    break;
+                                case TOY:
+                                    adController.showAdMobRewardedAd(() -> {
+                                        score += 500;
+                                        cat.play();
+                                        saveProgress();
+                                    });
+                                    break;
+                            }
+                        }
+                    }
                 }
             }
         } else if (spriteActive) {
             sprite.setTexture(image);
-            sprite1.setTexture(watchAdIcon);
-            sprite2.setTexture(foodIcon);
-            sprite3.setTexture(unityAdIcon);
             spriteActive = false;
         }
 
@@ -221,17 +216,25 @@ public class Main extends ApplicationAdapter {
         camera.update();
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        sprite1.draw(batch);
-        sprite2.draw(batch);
-        sprite3.draw(batch);
+        for (ShopItem item : shopItems) {
+            item.getSprite().draw(batch);
+        }
         sprite.draw(batch);
-        font.draw(batch, "+1", sprite.getX() + sprite.getWidth() / 2 - 10, sprite.getY() + sprite.getHeight() + 30);
-        font.draw(batch, "+500 (AdMob)", sprite1.getX() + sprite1.getWidth() / 2 - 40,
-                sprite1.getY() + sprite1.getHeight() + 30);
-        font.draw(batch, "Buy Food", sprite2.getX() + sprite2.getWidth() / 2 - 40,
-                sprite2.getY() + sprite2.getHeight() + 30);
-        font.draw(batch, "+1000 (Unity Ad)", sprite3.getX() + sprite3.getWidth() / 2 - 60,
-                sprite3.getY() + sprite3.getHeight() + 30);
+        for (ShopItem item : shopItems) {
+            float textX = item.getSprite().getX() + item.getSprite().getWidth() / 2 - 40;
+            float textY = item.getSprite().getY() + item.getSprite().getHeight() + 30;
+            switch (item.getType()) {
+                case TOY:
+                    font.draw(batch, "+500 (AdMob)", textX, textY);
+                    break;
+                case FOOD:
+                    font.draw(batch, "Buy Food", textX, textY);
+                    break;
+                case MEDICINE:
+                    font.draw(batch, "+1000 (Unity Ad)", textX, textY);
+                    break;
+            }
+        }
         batch.end();
 
         UIviewport.apply();
@@ -249,7 +252,6 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void resize(int width, int height) {
-        Gdx.app.log("Main", "Resized to: " + width + "x" + height);
         viewport.update(width, height, true);
         camera.position.set(VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT / 2, 0);
         UIviewport.update(width, height, true);
@@ -258,7 +260,6 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void dispose() {
-        Gdx.app.log("Main", "Disposing resources");
         batch.dispose();
         image.dispose();
         imageActive.dispose();
@@ -269,6 +270,5 @@ public class Main extends ApplicationAdapter {
             t.dispose();
         font.dispose();
         saveProgress();
-        Gdx.app.log("Main", "Resources disposed and progress saved");
     }
 }
