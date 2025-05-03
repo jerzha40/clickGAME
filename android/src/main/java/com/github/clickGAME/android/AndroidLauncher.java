@@ -24,6 +24,16 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 public class AndroidLauncher extends AndroidApplication implements AdController {
+    @Override
+    public boolean isAdMobReady() {
+        return admobRewarded != null;
+    }
+
+    @Override
+    public boolean isUnityAdReady() {
+        return unityAdLoaded;
+    }
+
     private RewardedAd admobRewarded;
     private static final String UNITY_GAME_ID = "5841813";
     private static final String UNITY_REWARDED_PLACEMENT_ID = "500";

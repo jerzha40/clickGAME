@@ -111,11 +111,21 @@ public class Main extends ApplicationAdapter {
         cat = new Cat(catX, catY);
 
         shopItems = new ArrayList<>();
-        shopItems.add(new ShopItem(ShopItem.Type.ADS, 0, watchAdIcon, 300, 0));
-        shopItems.add(new ShopItem(ShopItem.Type.FOOD, 100, foodIcon, 0, 0));
-        shopItems.add(new ShopItem(ShopItem.Type.ADS, 0, unityAdIcon, 500, 0));
-        shopItems.add(new ShopItem(ShopItem.Type.WATER, 0, waterIcon, 125, 0));
 
+        ShopItem adMobItem = new ShopItem(ShopItem.Type.ADS, 0, watchAdIcon, 300, 0);
+        ShopItem unityAdItem = new ShopItem(ShopItem.Type.ADS, 0, unityAdIcon, 500, 0);
+        ShopItem foodItem = new ShopItem(ShopItem.Type.FOOD, 100, foodIcon, 0, 0);
+        ShopItem waterItem = new ShopItem(ShopItem.Type.WATER, 0, waterIcon, 125, 0);
+        
+        // 调用接口判断是否启用（跨平台安全）
+        adMobItem.setEnabled(adController instanceof AdController && ((AdController) adController).isAdMobReady());
+        unityAdItem.setEnabled(adController instanceof AdController && ((AdController) adController).isUnityAdReady());
+        
+        shopItems.add(adMobItem);
+        shopItems.add(foodItem);
+        shopItems.add(unityAdItem);
+        shopItems.add(waterItem);
+        
         Gdx.app.log("Main", "Application created");
     }
 

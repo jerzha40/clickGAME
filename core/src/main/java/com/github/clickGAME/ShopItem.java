@@ -12,6 +12,7 @@ public class ShopItem {
     private int price;
     private Texture icon;
     private Sprite sprite;
+    private boolean enabled = true;
 
     public ShopItem(Type type, int price, Texture icon, float x, float y) {
         this.type = type;
@@ -35,6 +36,19 @@ public class ShopItem {
     }
 
     public boolean isTouched(float x, float y) {
-        return sprite.getBoundingRectangle().contains(x, y);
+        return enabled && sprite.getBoundingRectangle().contains(x, y);
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+        if (enabled) {
+            sprite.setColor(1f, 1f, 1f, 1f); // 正常颜色
+        } else {
+            sprite.setColor(0.5f, 0.5f, 0.5f, 1f); // 变灰
+        }
     }
 }

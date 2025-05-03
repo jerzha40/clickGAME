@@ -40,6 +40,16 @@ public class Lwjgl3Launcher {
             simulateAd(onReward);
         }
 
+        @Override
+        public boolean isAdMobReady() {
+            return false;
+        }
+
+        @Override
+        public boolean isUnityAdReady() {
+            return false;
+        }
+
         private void simulateAd(Runnable onReward) {
             new Thread(() -> {
                 try {
