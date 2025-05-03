@@ -116,21 +116,35 @@ public class Main extends ApplicationAdapter {
         ShopItem unityAdItem = new ShopItem(ShopItem.Type.ADS, 0, unityAdIcon, 500, 0);
         ShopItem foodItem = new ShopItem(ShopItem.Type.FOOD, 100, foodIcon, 0, 0);
         ShopItem waterItem = new ShopItem(ShopItem.Type.WATER, 0, waterIcon, 125, 0);
-        
+
         // 调用接口判断是否启用（跨平台安全）
         adMobItem.setEnabled(adController instanceof AdController && ((AdController) adController).isAdMobReady());
         unityAdItem.setEnabled(adController instanceof AdController && ((AdController) adController).isUnityAdReady());
-        
+
         shopItems.add(adMobItem);
         shopItems.add(foodItem);
         shopItems.add(unityAdItem);
         shopItems.add(waterItem);
-        
+
         Gdx.app.log("Main", "Application created");
     }
 
     @Override
     public void render() {
+        // 实时检测广告是否加载完成，启用广告按钮
+        for (ShopItem item : shopItems) {
+            if (item.getType() == ShopItem.Type.ADS) {
+                if (item.getSprite().getTexture() == watchAdIcon) {
+                    boolean ready = adController != null && adController.isAdMobReady();
+                    if (ready && !item.isEnabled())
+                        item.setEnabled(true);
+                } else if (item.getSprite().getTexture() == unityAdIcon) {
+                    boolean ready = adController != null && adController.isUnityAdReady();
+                    if (ready && !item.isEnabled())
+                        item.setEnabled(true);
+                }
+            }
+        }
         float delta = Gdx.graphics.getDeltaTime();
 
         cat.update(delta);
