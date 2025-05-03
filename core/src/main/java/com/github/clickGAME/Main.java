@@ -89,6 +89,9 @@ public class Main extends ApplicationAdapter {
                 new Texture("cat_walk3.png")
         };
 
+        Texture medicineIcon = new Texture("medicine_icon.png");
+        Texture toyIcon = new Texture("toy_icon.png");
+
         font = new BitmapFont();
         font.getData().setScale(2.0f);
         font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
@@ -125,6 +128,11 @@ public class Main extends ApplicationAdapter {
         shopItems.add(foodItem);
         shopItems.add(unityAdItem);
         shopItems.add(waterItem);
+
+        ShopItem medicineItem = new ShopItem(ShopItem.Type.MEDICINE, 150, medicineIcon, 650, 0);
+        ShopItem toyItem = new ShopItem(ShopItem.Type.TOY, 100, toyIcon, 775, 0);
+        shopItems.add(medicineItem);
+        shopItems.add(toyItem);
 
         Gdx.app.log("Main", "Application created");
     }
@@ -210,18 +218,18 @@ public class Main extends ApplicationAdapter {
                                     }
                                     break;
                                 case MEDICINE:
-                                    adController.showUnityRewardedAd(() -> {
-                                        score += 1000;
+                                    if (score >= item.getPrice()) {
+                                        score -= item.getPrice();
                                         cat.giveMedicine();
                                         saveProgress();
-                                    });
+                                    }
                                     break;
                                 case TOY:
-                                    adController.showAdMobRewardedAd(() -> {
-                                        score += 500;
+                                    if (score >= item.getPrice()) {
+                                        score -= item.getPrice();
                                         cat.play();
                                         saveProgress();
-                                    });
+                                    }
                                     break;
                                 case WATER:
                                     if (score >= item.getPrice()) {
@@ -270,13 +278,13 @@ public class Main extends ApplicationAdapter {
             float textY = item.getSprite().getY() + item.getSprite().getHeight() + 30;
             switch (item.getType()) {
                 case TOY:
-                    font.draw(batch, "+500 (AdMob)", textX, textY);
+                    font.draw(batch, "Buy Toy", textX, textY);
                     break;
                 case FOOD:
                     font.draw(batch, "Buy Food", textX, textY);
                     break;
                 case MEDICINE:
-                    font.draw(batch, "+1000 (Unity Ad)", textX, textY);
+                    font.draw(batch, "Buy Medicine", textX, textY);
                     break;
                 case WATER:
                     font.draw(batch, "Buy Water", textX, textY);
