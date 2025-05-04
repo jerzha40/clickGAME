@@ -121,6 +121,7 @@ public class Main extends ApplicationAdapter {
         float catX = prefs.getFloat("cat_x", VIRTUAL_WIDTH / 2f - 75);
         float catY = prefs.getFloat("cat_y", VIRTUAL_HEIGHT / 2f - 75);
         cat = new Cat(catX, catY);
+        cat.setFeedbackTexture(new Texture("heart_icon.png"));
         cat.setStageTextures(babyTexture, juniorTexture, adultTexture, fullTexture);
 
         shopItems = new ArrayList<>();
@@ -208,6 +209,7 @@ public class Main extends ApplicationAdapter {
 
             if (cat.getSprite().getBoundingRectangle().contains(touchPos.x, touchPos.y)) {
                 if (!spriteActive) {
+                    cat.onTouched();
                     cat.getSprite().setTexture(imageActive);
                     spriteActive = true;
                     score += 1;
@@ -282,7 +284,7 @@ public class Main extends ApplicationAdapter {
         for (ShopItem item : shopItems) {
             item.getSprite().draw(batch);
         }
-        cat.getSprite().draw(batch);
+        cat.render(batch);
         for (ShopItem item : shopItems) {
             float textX = item.getSprite().getX() + item.getSprite().getWidth() / 2 - 40;
             float textY = item.getSprite().getY() + item.getSprite().getHeight() + 30;

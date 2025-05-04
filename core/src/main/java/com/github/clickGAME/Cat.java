@@ -3,6 +3,9 @@ package com.github.clickGAME;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.Array;
+
 public class Cat {
     private Sprite sprite;
     private float health = 100f;
@@ -10,6 +13,9 @@ public class Cat {
     private float fullness = 100f;
     private float thirst = 100f;
     private float growth = 0f;
+
+    private Array<FloatingIcon> floatingIcons = new Array<>();
+    private Texture feedbackTexture;
 
     public enum Stage {
         BABY, JUNIOR, ADULT, FULL
@@ -95,10 +101,32 @@ public class Cat {
     }
 
     public void update(float delta) {
+        for (FloatingIcon icon : floatingIcons)
+            icon.update(delta);
+        for (int i = floatingIcons.size - 1; i >= 0; i--) {
+            if (floatingIcons.get(i).isDead()) {
+                floatingIcons.removeIndex(i);
+            }
+        }
         fullness = Math.max(0f, fullness - delta * 0.5f);
         thirst = Math.max(0f, thirst - delta * 0.5f);
         health = Math.max(0f, health - (fullness < 20f || thirst < 20f ? delta * 2f : 0));
         happiness = Math.max(0f, happiness - delta * 0.3f);
+    }
+
+    public void render(SpriteBatch batch) {
+        sprite.draw(batch);
+        for (FloatingIcon icon : floatingIcons)
+            icon.render(batch);
+    }
+
+    public void onTouched() {
+        if (feedbackTexture != null)
+            floatingIcons.add(new FloatingIcon(feedbackTexture, getX() + 60, getY() + 100));
+    }
+
+    public void setFeedbackTexture(Texture texture) {
+        this.feedbackTexture = texture;
     }
 
     public Sprite getSprite() {
