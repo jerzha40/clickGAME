@@ -18,6 +18,7 @@ public class ShopItem {
 
     private Array<FloatingIcon> floatingIcons = new Array<>();
     private Texture feedbackTexture;
+    private Texture failureTexture;
 
     public ShopItem(Type type, int price, Texture icon, float x, float y) {
         this.type = type;
@@ -62,6 +63,16 @@ public class ShopItem {
 
     public void setFeedbackTexture(Texture texture) {
         this.feedbackTexture = texture;
+    }
+
+    public void setFailureTexture(Texture texture) {
+        this.failureTexture = texture;
+    }
+
+    public void onFailed() {
+        if (failureTexture != null) {
+            floatingIcons.add(new FloatingIcon(failureTexture, sprite.getX() + 50, sprite.getY() + 100));
+        }
     }
 
     public Sprite getSprite() {

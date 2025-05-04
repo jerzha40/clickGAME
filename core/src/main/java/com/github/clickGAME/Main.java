@@ -5,7 +5,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -40,7 +39,6 @@ public class Main extends ApplicationAdapter {
     private Texture unityAdIcon;
     private Texture waterIcon;
     private Texture[] walkTextures;
-    private Sprite sprite;
     private BitmapFont font;
     private int score;
     private int food;
@@ -101,6 +99,7 @@ public class Main extends ApplicationAdapter {
         Texture medicineIcon = new Texture("medicine_icon.png");
         Texture toyIcon = new Texture("toy_icon.png");
         Texture coinIcon = new Texture("coin_icon.png");
+        Texture failIcon = new Texture("fail_icon.png");
 
         font = new BitmapFont();
         font.getData().setScale(2.0f);
@@ -148,6 +147,7 @@ public class Main extends ApplicationAdapter {
 
         for (ShopItem item : shopItems) {
             item.setFeedbackTexture(coinIcon);
+            item.setFailureTexture(failIcon);
         }
 
         Gdx.app.log("Main", "Application created");
@@ -236,6 +236,8 @@ public class Main extends ApplicationAdapter {
                                         food++;
                                         cat.feed();
                                         saveProgress();
+                                    } else {
+                                        item.onFailed();
                                     }
                                     break;
                                 case MEDICINE:
@@ -244,6 +246,8 @@ public class Main extends ApplicationAdapter {
                                         score -= item.getPrice();
                                         cat.giveMedicine();
                                         saveProgress();
+                                    } else {
+                                        item.onFailed();
                                     }
                                     break;
                                 case TOY:
@@ -252,6 +256,8 @@ public class Main extends ApplicationAdapter {
                                         score -= item.getPrice();
                                         cat.play();
                                         saveProgress();
+                                    } else {
+                                        item.onFailed();
                                     }
                                     break;
                                 case WATER:
@@ -260,6 +266,8 @@ public class Main extends ApplicationAdapter {
                                         score -= item.getPrice();
                                         cat.drink();
                                         saveProgress();
+                                    } else {
+                                        item.onFailed();
                                     }
                                     break;
                                 case ADS:
@@ -293,7 +301,9 @@ public class Main extends ApplicationAdapter {
         camera.update();
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        for (ShopItem item : shopItems) {
+        for (
+
+        ShopItem item : shopItems) {
             item.render(batch);
         }
         cat.render(batch);
