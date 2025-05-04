@@ -76,8 +76,16 @@ public class Main extends ApplicationAdapter {
 
         batch = new SpriteBatch();
 
-        image = new Texture("cat_idle.png");
+        image = new Texture("cat_baby.png"); // 默认使用幼猫图
         imageActive = new Texture("cat_active.png");
+
+        // 加载成长阶段图像
+        Texture babyTexture = new Texture("cat_baby.png");
+        Texture juniorTexture = new Texture("cat_junior.png");
+        Texture adultTexture = new Texture("cat_adult.png");
+        Texture fullTexture = new Texture("cat_full.png");
+
+        // cat.setStageTextures call moved below after cat is constructed
         foodIcon = new Texture("food_icon.png");
         watchAdIcon = new Texture("watch_ad.png");
         unityAdIcon = new Texture("unity_ad.png");
@@ -87,6 +95,7 @@ public class Main extends ApplicationAdapter {
                 new Texture("cat_walk1.png"),
                 new Texture("cat_walk2.png"),
                 new Texture("cat_walk3.png")
+
         };
 
         Texture medicineIcon = new Texture("medicine_icon.png");
@@ -112,6 +121,7 @@ public class Main extends ApplicationAdapter {
         float catX = prefs.getFloat("cat_x", VIRTUAL_WIDTH / 2f - 75);
         float catY = prefs.getFloat("cat_y", VIRTUAL_HEIGHT / 2f - 75);
         cat = new Cat(catX, catY);
+        cat.setStageTextures(babyTexture, juniorTexture, adultTexture, fullTexture);
 
         shopItems = new ArrayList<>();
 
@@ -188,7 +198,7 @@ public class Main extends ApplicationAdapter {
 
             if (moveDuration <= 0) {
                 isMoving = false;
-                cat.getSprite().setTexture(image);
+                cat.updateTextureForStage();
             }
         }
 
@@ -259,7 +269,7 @@ public class Main extends ApplicationAdapter {
                 }
             }
         } else if (spriteActive) {
-            cat.getSprite().setTexture(image);
+            cat.updateTextureForStage();
             spriteActive = false;
         }
 
@@ -305,6 +315,8 @@ public class Main extends ApplicationAdapter {
         batch.setProjectionMatrix(UIcamera.combined);
         batch.begin();
         font.draw(batch, "Score: " + score, 0, VIRTUAL_HEIGHT);
+        font.draw(batch, String.format("Growth: %.0f", cat.getGrowth()), 0, VIRTUAL_HEIGHT - 240);
+        font.draw(batch, "Stage: " + cat.getStage().name(), 0, VIRTUAL_HEIGHT - 280);
         font.draw(batch, "Food: " + food, 0, VIRTUAL_HEIGHT - 40);
         font.draw(batch, String.format("Health: %.0f", cat.getHealth()), 0, VIRTUAL_HEIGHT - 80);
         font.draw(batch, String.format("Happiness: %.0f", cat.getHappiness()), 0, VIRTUAL_HEIGHT - 120);

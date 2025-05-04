@@ -1,80 +1,120 @@
 package com.github.clickGAME;
 
-import java.util.Random;
-
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 
 public class Cat {
-    private float x;
-    private float y;
-    private float fullness; // 饱食度：0~100
-    private float thirst; // 口渴度：0~100
-    private float health; // 健康状态：0~100
-    private float happiness; // 开心值：0~100
-
-    private float timeSinceLastUpdate = 0;
-    private Random random = new Random();
     private Sprite sprite;
+    private float health = 100f;
+    private float happiness = 100f;
+    private float fullness = 100f;
+    private float thirst = 100f;
+    private float growth = 0f;
 
-    public Cat() {
-        this(0, 0);
+    public enum Stage {
+        BABY, JUNIOR, ADULT, FULL
     }
+
+    private Stage stage = Stage.BABY;
+    private Texture babyTexture;
+    private Texture juniorTexture;
+    private Texture adultTexture;
+    private Texture fullTexture;
 
     public Cat(float x, float y) {
-        this.sprite = new Sprite(new Texture("cat_idle.png"));
-        this.sprite.setSize(150, 150);
-        this.x = x;
-        this.y = y;
-        this.sprite.setPosition(x, y);
-        fullness = 100;
-        thirst = 100;
-        health = 100;
-        happiness = 100;
+        sprite = new Sprite(new Texture("cat_idle.png"));
+        sprite.setPosition(x, y);
+        sprite.setSize(150, 150);
     }
 
-    public void update(float delta) {
-        timeSinceLastUpdate += delta;
+    public void setStageTextures(Texture baby, Texture junior, Texture adult, Texture full) {
+        this.babyTexture = baby;
+        this.juniorTexture = junior;
+        this.adultTexture = adult;
+        this.fullTexture = full;
+        updateTextureForStage();
+    }
 
-        if (timeSinceLastUpdate >= 5f) {
-            fullness = Math.max(0, fullness - 1);
-            thirst = Math.max(0, thirst - 2);
+    public void updateTextureForStage() {
+        switch (stage) {
+            case BABY:
+                sprite.setTexture(babyTexture);
+                break;
+            case JUNIOR:
+                sprite.setTexture(juniorTexture);
+                break;
+            case ADULT:
+                sprite.setTexture(adultTexture);
+                break;
+            case FULL:
+                sprite.setTexture(fullTexture);
+                break;
+        }
+    }
 
-            if (fullness < 20 || thirst < 20)
-                health = Math.max(0, health - 1);
+    private void updateStage() {
+        Stage newStage;
+        if (growth < 100)
+            newStage = Stage.BABY;
+        else if (growth < 300)
+            newStage = Stage.JUNIOR;
+        else if (growth < 600)
+            newStage = Stage.ADULT;
+        else
+            newStage = Stage.FULL;
 
-            happiness = health * 0.8f;
-
-            timeSinceLastUpdate = 0;
+        if (newStage != stage) {
+            stage = newStage;
+            updateTextureForStage();
         }
     }
 
     public void feed() {
-        float chance = thirst / 100f;
-        if (random.nextFloat() < chance * chance) {
-            fullness = Math.min(100, fullness + 30);
-        }
-        // 否则这次喂食没有生效
+        fullness = Math.min(100f, fullness + 30f);
+        grow(1.5f);
     }
 
     public void drink() {
-        thirst = Math.min(100, thirst + 40);
+        thirst = Math.min(100f, thirst + 50f);
+        grow(1f);
     }
 
     public void giveMedicine() {
-        health = Math.min(100, health + 20);
+        health = Math.min(100f, health + 50f);
+        grow(0.5f);
     }
 
     public void play() {
-        happiness = Math.min(100, happiness + 15);
+        happiness = Math.min(100f, happiness + 50f);
+        grow(1.0f);
     }
 
-    public float getFullness() {
-        return fullness;
+    private void grow(float amount) {
+        growth += amount;
+        updateStage();
     }
 
-    public float getThirst() {
-        return thirst;
+    public void update(float delta) {
+        fullness = Math.max(0f, fullness - delta * 0.5f);
+        thirst = Math.max(0f, thirst - delta * 0.5f);
+        health = Math.max(0f, health - (fullness < 20f || thirst < 20f ? delta * 2f : 0));
+        happiness = Math.max(0f, happiness - delta * 0.3f);
+    }
+
+    public Sprite getSprite() {
+        return sprite;
+    }
+
+    public float getX() {
+        return sprite.getX();
+    }
+
+    public float getY() {
+        return sprite.getY();
+    }
+
+    public void setPosition(float x, float y) {
+        sprite.setPosition(x, y);
     }
 
     public float getHealth() {
@@ -85,21 +125,19 @@ public class Cat {
         return happiness;
     }
 
-    public Sprite getSprite() {
-        return sprite;
+    public float getFullness() {
+        return fullness;
     }
 
-    public float getX() {
-        return x;
+    public float getThirst() {
+        return thirst;
     }
 
-    public float getY() {
-        return y;
+    public float getGrowth() {
+        return growth;
     }
 
-    public void setPosition(float x, float y) {
-        this.x = x;
-        this.y = y;
-        this.sprite.setPosition(x, y);
+    public Stage getStage() {
+        return stage;
     }
 }
