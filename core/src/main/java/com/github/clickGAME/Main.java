@@ -100,6 +100,7 @@ public class Main extends ApplicationAdapter {
 
         Texture medicineIcon = new Texture("medicine_icon.png");
         Texture toyIcon = new Texture("toy_icon.png");
+        Texture coinIcon = new Texture("coin_icon.png");
 
         font = new BitmapFont();
         font.getData().setScale(2.0f);
@@ -145,6 +146,10 @@ public class Main extends ApplicationAdapter {
         shopItems.add(medicineItem);
         shopItems.add(toyItem);
 
+        for (ShopItem item : shopItems) {
+            item.setFeedbackTexture(coinIcon);
+        }
+
         Gdx.app.log("Main", "Application created");
     }
 
@@ -167,6 +172,9 @@ public class Main extends ApplicationAdapter {
         float delta = Gdx.graphics.getDeltaTime();
 
         cat.update(delta);
+        for (ShopItem item : shopItems) {
+            item.update(delta);
+        }
         moveTimer -= delta;
 
         if (!isMoving && moveTimer <= 0) {
@@ -223,6 +231,7 @@ public class Main extends ApplicationAdapter {
                             switch (item.getType()) {
                                 case FOOD:
                                     if (score >= item.getPrice()) {
+                                        item.onClicked();
                                         score -= item.getPrice();
                                         food++;
                                         cat.feed();
@@ -231,6 +240,7 @@ public class Main extends ApplicationAdapter {
                                     break;
                                 case MEDICINE:
                                     if (score >= item.getPrice()) {
+                                        item.onClicked();
                                         score -= item.getPrice();
                                         cat.giveMedicine();
                                         saveProgress();
@@ -238,6 +248,7 @@ public class Main extends ApplicationAdapter {
                                     break;
                                 case TOY:
                                     if (score >= item.getPrice()) {
+                                        item.onClicked();
                                         score -= item.getPrice();
                                         cat.play();
                                         saveProgress();
@@ -245,6 +256,7 @@ public class Main extends ApplicationAdapter {
                                     break;
                                 case WATER:
                                     if (score >= item.getPrice()) {
+                                        item.onClicked();
                                         score -= item.getPrice();
                                         cat.drink();
                                         saveProgress();
@@ -282,7 +294,7 @@ public class Main extends ApplicationAdapter {
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
         for (ShopItem item : shopItems) {
-            item.getSprite().draw(batch);
+            item.render(batch);
         }
         cat.render(batch);
         for (ShopItem item : shopItems) {

@@ -27,7 +27,7 @@ public class FloatingIcon {
 
     public void render(SpriteBatch batch) {
         batch.setColor(1, 1, 1, Math.max(0, alpha));
-        batch.draw(texture, x, y, 32, 32);
+        batch.draw(texture, x, y, 64, 64);
         batch.setColor(1, 1, 1, 1);
     }
 }

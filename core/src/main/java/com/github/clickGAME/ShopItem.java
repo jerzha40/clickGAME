@@ -2,6 +2,8 @@ package com.github.clickGAME;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.Array;
 
 public class ShopItem {
     public enum Type {
@@ -13,6 +15,9 @@ public class ShopItem {
     private Texture icon;
     private Sprite sprite;
     private boolean enabled = true;
+
+    private Array<FloatingIcon> floatingIcons = new Array<>();
+    private Texture feedbackTexture;
 
     public ShopItem(Type type, int price, Texture icon, float x, float y) {
         this.type = type;
@@ -31,6 +36,34 @@ public class ShopItem {
         return price;
     }
 
+    public void update(float delta) {
+        for (FloatingIcon icon : floatingIcons) {
+            icon.update(delta);
+        }
+        for (int i = floatingIcons.size - 1; i >= 0; i--) {
+            if (floatingIcons.get(i).isDead()) {
+                floatingIcons.removeIndex(i);
+            }
+        }
+    }
+
+    public void render(SpriteBatch batch) {
+        sprite.draw(batch);
+        for (FloatingIcon icon : floatingIcons) {
+            icon.render(batch);
+        }
+    }
+
+    public void onClicked() {
+        if (feedbackTexture != null) {
+            floatingIcons.add(new FloatingIcon(feedbackTexture, sprite.getX() + 50, sprite.getY() + 100));
+        }
+    }
+
+    public void setFeedbackTexture(Texture texture) {
+        this.feedbackTexture = texture;
+    }
+
     public Sprite getSprite() {
         return sprite;
     }
@@ -46,9 +79,9 @@ public class ShopItem {
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
         if (enabled) {
-            sprite.setColor(1f, 1f, 1f, 1f); // 正常颜色
+            sprite.setColor(1f, 1f, 1f, 1f);
         } else {
-            sprite.setColor(0.5f, 0.5f, 0.5f, 1f); // 变灰
+            sprite.setColor(0.5f, 0.5f, 0.5f, 1f);
         }
     }
 }
