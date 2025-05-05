@@ -47,7 +47,7 @@ public class AndroidLauncher extends AndroidApplication implements AdController 
 
         MobileAds.initialize(this, status -> {
         });
-        UnityAds.initialize(this, UNITY_GAME_ID, false, new IUnityAdsInitializationListener() {
+        UnityAds.initialize(this, UNITY_GAME_ID, true, new IUnityAdsInitializationListener() {
             @Override
             public void onInitializationComplete() {
                 Log.i("UnityAds", "Initialization complete");
