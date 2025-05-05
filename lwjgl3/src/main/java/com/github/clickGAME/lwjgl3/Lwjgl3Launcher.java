@@ -42,12 +42,12 @@ public class Lwjgl3Launcher {
 
         @Override
         public boolean isAdMobReady() {
-            return false;
+            return true;
         }
 
         @Override
         public boolean isUnityAdReady() {
-            return false;
+            return true;
         }
 
         private void simulateAd(Runnable onReward) {

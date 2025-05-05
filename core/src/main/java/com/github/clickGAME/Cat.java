@@ -1,5 +1,7 @@
 package com.github.clickGAME;
 
+import java.util.Random;
+
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 
@@ -7,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
 
 public class Cat {
+    private Random random = new Random();
     private Sprite sprite;
     private float health = 100f;
     private float happiness = 100f;
@@ -76,8 +79,12 @@ public class Cat {
     }
 
     public void feed() {
-        fullness = Math.min(100f, fullness + 30f);
-        grow(1.5f);
+        float chance = thirst / 100f;
+        if (random.nextFloat() < chance * chance) {
+            fullness = Math.min(100, fullness + 30);
+            grow(1.5f);
+        }
+        // 否则这次喂食没有生效
     }
 
     public void drink() {

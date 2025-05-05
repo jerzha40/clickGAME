@@ -32,7 +32,6 @@ public class Main extends ApplicationAdapter {
 
     private void saveProgress() {
         prefs.putInteger("score", score);
-        prefs.putInteger("food", food);
         prefs.putFloat("cat_x", cat.getX());
         prefs.putFloat("cat_y", cat.getY());
         prefs.flush();
@@ -47,7 +46,6 @@ public class Main extends ApplicationAdapter {
     private Texture imageActive;
     private BitmapFont font;
     private int score;
-    private int food;
     private Vector3 touchPos;
     private OrthographicCamera camera;
     private Viewport viewport;
@@ -88,7 +86,6 @@ public class Main extends ApplicationAdapter {
 
         prefs = Gdx.app.getPreferences("ClickCatSave");
         score = prefs.getInteger("score", 0);
-        food = prefs.getInteger("food", 3);
         float catX = prefs.getFloat("cat_x", VIRTUAL_WIDTH / 2f - 75);
         float catY = prefs.getFloat("cat_y", VIRTUAL_HEIGHT / 2f - 75);
         Texture babyTexture = new Texture("cat_baby.png");
@@ -164,7 +161,6 @@ public class Main extends ApplicationAdapter {
                             switch (item.getType()) {
                                 case FOOD:
                                     handlePurchase(item, () -> {
-                                        food++;
                                         cat.feed();
                                     });
                                     break;
@@ -256,7 +252,6 @@ public class Main extends ApplicationAdapter {
         font.draw(batch, "Score: " + score, 0, VIRTUAL_HEIGHT);
         font.draw(batch, String.format("Growth: %.0f", cat.getGrowth()), 0, VIRTUAL_HEIGHT - 240);
         font.draw(batch, "Stage: " + cat.getStage().name(), 0, VIRTUAL_HEIGHT - 280);
-        font.draw(batch, "Food: " + food, 0, VIRTUAL_HEIGHT - 40);
         font.draw(batch, String.format("Health: %.0f", cat.getHealth()), 0, VIRTUAL_HEIGHT - 80);
         font.draw(batch, String.format("Happiness: %.0f", cat.getHappiness()), 0, VIRTUAL_HEIGHT - 120);
         font.draw(batch, String.format("Fullness: %.0f", cat.getFullness()), 0, VIRTUAL_HEIGHT - 160);
