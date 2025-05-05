@@ -1,0 +1,44 @@
+[
+  {
+    "type": "FOOD",
+    "price": 100,
+    "icon": "food_icon.png",
+    "x": 0,
+    "y": 0
+  },
+  {
+    "type": "WATER",
+    "price": 0,
+    "icon": "water_icon.png",
+    "x": 125,
+    "y": 0
+  },
+  {
+    "type": "ADS",
+    "price": 0,
+    "icon": "watch_ad.png",
+    "x": 300,
+    "y": 0
+  },
+  {
+    "type": "ADS",
+    "price": 0,
+    "icon": "unity_ad.png",
+    "x": 500,
+    "y": 0
+  },
+  {
+    "type": "MEDICINE",
+    "price": 150,
+    "icon": "medicine_icon.png",
+    "x": 650,
+    "y": 0
+  },
+  {
+    "type": "TOY",
+    "price": 100,
+    "icon": "toy_icon.png",
+    "x": 775,
+    "y": 0
+  }
+]

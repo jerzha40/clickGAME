@@ -3,11 +3,13 @@ package com.github.clickGAME;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -43,10 +45,6 @@ public class Main extends ApplicationAdapter {
     private SpriteBatch batch;
     private Texture image;
     private Texture imageActive;
-    private Texture foodIcon;
-    private Texture watchAdIcon;
-    private Texture unityAdIcon;
-    private Texture waterIcon;
     private BitmapFont font;
     private int score;
     private int food;
@@ -77,21 +75,6 @@ public class Main extends ApplicationAdapter {
         image = new Texture("cat_baby.png");
         imageActive = new Texture("cat_active.png");
 
-        Texture babyTexture = new Texture("cat_baby.png");
-        Texture juniorTexture = new Texture("cat_junior.png");
-        Texture adultTexture = new Texture("cat_adult.png");
-        Texture fullTexture = new Texture("cat_full.png");
-
-        foodIcon = new Texture("food_icon.png");
-        watchAdIcon = new Texture("watch_ad.png");
-        unityAdIcon = new Texture("unity_ad.png");
-        waterIcon = new Texture("water_icon.png");
-
-        Texture medicineIcon = new Texture("medicine_icon.png");
-        Texture toyIcon = new Texture("toy_icon.png");
-        Texture coinIcon = new Texture("coin_icon.png");
-        Texture failIcon = new Texture("fail_icon.png");
-
         font = new BitmapFont();
         font.getData().setScale(2.0f);
         font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
@@ -100,44 +83,40 @@ public class Main extends ApplicationAdapter {
 
         camera = new OrthographicCamera();
         viewport = new ScreenViewport(camera);
-
         UIcamera = new OrthographicCamera();
         UIviewport = new ExtendViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, UIcamera);
 
         prefs = Gdx.app.getPreferences("ClickCatSave");
-
         score = prefs.getInteger("score", 0);
         food = prefs.getInteger("food", 3);
         float catX = prefs.getFloat("cat_x", VIRTUAL_WIDTH / 2f - 75);
         float catY = prefs.getFloat("cat_y", VIRTUAL_HEIGHT / 2f - 75);
+        Texture babyTexture = new Texture("cat_baby.png");
+        Texture juniorTexture = new Texture("cat_junior.png");
+        Texture adultTexture = new Texture("cat_adult.png");
+        Texture fullTexture = new Texture("cat_full.png");
         cat = new Cat(catX, catY);
         cat.setFeedbackTexture(new Texture("heart_icon.png"));
         cat.setStageTextures(babyTexture, juniorTexture, adultTexture, fullTexture);
 
+        Json json = new Json();
+        FileHandle file = Gdx.files.internal("shop_items.json");
+        ShopItemConfig[] configs = json.fromJson(ShopItemConfig[].class, file);
         shopItems = new ArrayList<>();
 
-        ShopItem adMobItem = new ShopItem(ShopItem.Type.ADS, 0, watchAdIcon, 300, 0);
-        ShopItem unityAdItem = new ShopItem(ShopItem.Type.ADS, 0, unityAdIcon, 500, 0);
-        ShopItem foodItem = new ShopItem(ShopItem.Type.FOOD, 100, foodIcon, 0, 0);
-        ShopItem waterItem = new ShopItem(ShopItem.Type.WATER, 0, waterIcon, 125, 0);
-
-        // 调用接口判断是否启用（跨平台安全）
-        adMobItem.setEnabled(adController instanceof AdController && ((AdController) adController).isAdMobReady());
-        unityAdItem.setEnabled(adController instanceof AdController && ((AdController) adController).isUnityAdReady());
-
-        shopItems.add(adMobItem);
-        shopItems.add(foodItem);
-        shopItems.add(unityAdItem);
-        shopItems.add(waterItem);
-
-        ShopItem medicineItem = new ShopItem(ShopItem.Type.MEDICINE, 150, medicineIcon, 650, 0);
-        ShopItem toyItem = new ShopItem(ShopItem.Type.TOY, 100, toyIcon, 775, 0);
-        shopItems.add(medicineItem);
-        shopItems.add(toyItem);
-
-        for (ShopItem item : shopItems) {
-            item.setFeedbackTexture(coinIcon);
-            item.setFailureTexture(failIcon);
+        for (ShopItemConfig config : configs) {
+            ShopItem.Type type = ShopItem.Type.valueOf(config.type);
+            Texture icon = new Texture(config.icon);
+            ShopItem item = new ShopItem(type, config.price, icon, config.x, config.y);
+            item.setIconPath(config.icon);
+            item.setFeedbackTexture(new Texture("coin_icon.png"));
+            item.setFailureTexture(new Texture("fail_icon.png"));
+            if (type == ShopItem.Type.ADS) {
+                boolean ready = config.icon.contains("unity") ? adController.isUnityAdReady()
+                        : adController.isAdMobReady();
+                item.setEnabled(ready);
+            }
+            shopItems.add(item);
         }
 
         Gdx.app.log("Main", "Application created");
@@ -148,11 +127,11 @@ public class Main extends ApplicationAdapter {
         // 实时检测广告是否加载完成，启用广告按钮
         for (ShopItem item : shopItems) {
             if (item.getType() == ShopItem.Type.ADS) {
-                if (item.getSprite().getTexture() == watchAdIcon) {
+                if (item.getIconPath().contains("watch_ad")) {
                     boolean ready = adController != null && adController.isAdMobReady();
                     if (ready && !item.isEnabled())
                         item.setEnabled(true);
-                } else if (item.getSprite().getTexture() == unityAdIcon) {
+                } else if (item.getIconPath().contains("unity_ad")) {
                     boolean ready = adController != null && adController.isUnityAdReady();
                     if (ready && !item.isEnabled())
                         item.setEnabled(true);
@@ -205,13 +184,13 @@ public class Main extends ApplicationAdapter {
                                     });
                                     break;
                                 case ADS:
-                                    if (item.getSprite().getTexture() == watchAdIcon) {
+                                    if (item.getIconPath().contains("watch_ad")) {
                                         adController.showAdMobRewardedAd(() -> {
                                             score += 500;
                                             cat.play();
                                             saveProgress();
                                         });
-                                    } else if (item.getSprite().getTexture() == unityAdIcon) {
+                                    } else if (item.getIconPath().contains("unity_ad")) {
                                         adController.showUnityRewardedAd(() -> {
                                             score += 1000;
                                             cat.giveMedicine();
@@ -224,7 +203,9 @@ public class Main extends ApplicationAdapter {
                     }
                 }
             }
-        } else if (spriteActive) {
+        } else if (spriteActive)
+
+        {
             cat.updateTextureForStage();
             spriteActive = false;
         }
@@ -258,9 +239,9 @@ public class Main extends ApplicationAdapter {
                     font.draw(batch, "Buy Water", textX, textY);
                     break;
                 case ADS:
-                    if (item.getSprite().getTexture() == watchAdIcon) {
+                    if (item.getIconPath().contains("watch_ad")) {
                         font.draw(batch, "+500 (AdMob)", textX, textY);
-                    } else if (item.getSprite().getTexture() == unityAdIcon) {
+                    } else if (item.getIconPath().contains("unity_ad")) {
                         font.draw(batch, "+1000 (Unity Ad)", textX, textY);
                     }
                     break;
@@ -296,10 +277,6 @@ public class Main extends ApplicationAdapter {
         batch.dispose();
         image.dispose();
         imageActive.dispose();
-        foodIcon.dispose();
-        watchAdIcon.dispose();
-        unityAdIcon.dispose();
-        waterIcon.dispose();
         font.dispose();
         saveProgress();
     }

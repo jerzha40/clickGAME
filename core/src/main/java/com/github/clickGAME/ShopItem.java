@@ -15,6 +15,7 @@ public class ShopItem {
     private Texture icon;
     private Sprite sprite;
     private boolean enabled = true;
+    private String iconPath;
 
     private Array<FloatingIcon> floatingIcons = new Array<>();
     private Texture feedbackTexture;
@@ -81,6 +82,14 @@ public class ShopItem {
 
     public boolean isTouched(float x, float y) {
         return enabled && sprite.getBoundingRectangle().contains(x, y);
+    }
+
+    public String getIconPath() {
+        return iconPath;
+    }
+
+    public void setIconPath(String iconPath) {
+        this.iconPath = iconPath;
     }
 
     public boolean isEnabled() {
