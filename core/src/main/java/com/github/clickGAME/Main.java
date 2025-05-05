@@ -6,8 +6,6 @@ import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -38,7 +36,6 @@ public class Main extends ApplicationAdapter {
     private Texture watchAdIcon;
     private Texture unityAdIcon;
     private Texture waterIcon;
-    private Texture[] walkTextures;
     private BitmapFont font;
     private int score;
     private int food;
@@ -48,14 +45,6 @@ public class Main extends ApplicationAdapter {
     private OrthographicCamera UIcamera;
     private Viewport UIviewport;
     private boolean spriteActive = false;
-
-    private Vector2 direction;
-    private float moveTimer = 0;
-    private float walkFrameTimer = 0;
-    private int walkFrameIndex = 0;
-    private float moveSpeed = 50f;
-    private boolean isMoving = false;
-    private float moveDuration = 0;
 
     private Preferences prefs;
     private Cat cat;
@@ -74,27 +63,18 @@ public class Main extends ApplicationAdapter {
 
         batch = new SpriteBatch();
 
-        image = new Texture("cat_baby.png"); // 默认使用幼猫图
+        image = new Texture("cat_baby.png");
         imageActive = new Texture("cat_active.png");
 
-        // 加载成长阶段图像
         Texture babyTexture = new Texture("cat_baby.png");
         Texture juniorTexture = new Texture("cat_junior.png");
         Texture adultTexture = new Texture("cat_adult.png");
         Texture fullTexture = new Texture("cat_full.png");
 
-        // cat.setStageTextures call moved below after cat is constructed
         foodIcon = new Texture("food_icon.png");
         watchAdIcon = new Texture("watch_ad.png");
         unityAdIcon = new Texture("unity_ad.png");
         waterIcon = new Texture("water_icon.png");
-
-        walkTextures = new Texture[] {
-                new Texture("cat_walk1.png"),
-                new Texture("cat_walk2.png"),
-                new Texture("cat_walk3.png")
-
-        };
 
         Texture medicineIcon = new Texture("medicine_icon.png");
         Texture toyIcon = new Texture("toy_icon.png");
@@ -106,7 +86,6 @@ public class Main extends ApplicationAdapter {
         font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
         touchPos = new Vector3();
-        direction = new Vector2();
 
         camera = new OrthographicCamera();
         viewport = new ScreenViewport(camera);
@@ -172,44 +151,8 @@ public class Main extends ApplicationAdapter {
         float delta = Gdx.graphics.getDeltaTime();
 
         cat.update(delta);
-        for (ShopItem item : shopItems) {
+        for (ShopItem item : shopItems)
             item.update(delta);
-        }
-        moveTimer -= delta;
-
-        if (!isMoving && moveTimer <= 0) {
-            if (MathUtils.randomBoolean(0.2f)) {
-                direction.set(MathUtils.random(-1f, 1f), MathUtils.random(-1f, 1f)).nor();
-                moveDuration = MathUtils.random(1f, 2f);
-                isMoving = true;
-                walkFrameIndex = 0;
-                cat.getSprite().setTexture(walkTextures[walkFrameIndex]);
-            }
-            moveTimer = MathUtils.random(2f, 4f);
-        }
-
-        if (isMoving) {
-            cat.getSprite().translate(direction.x * moveSpeed * delta, direction.y * moveSpeed * delta);
-            cat.setPosition(cat.getSprite().getX(), cat.getSprite().getY());
-            moveDuration -= delta;
-
-            if (cat.getSprite().getX() < 0 || cat.getSprite().getX() > VIRTUAL_WIDTH - cat.getSprite().getWidth())
-                direction.x *= -1;
-            if (cat.getSprite().getY() < 0 || cat.getSprite().getY() > VIRTUAL_HEIGHT - cat.getSprite().getHeight())
-                direction.y *= -1;
-
-            walkFrameTimer += delta;
-            if (walkFrameTimer > 0.2f) {
-                walkFrameIndex = (walkFrameIndex + 1) % walkTextures.length;
-                cat.getSprite().setTexture(walkTextures[walkFrameIndex]);
-                walkFrameTimer = 0;
-            }
-
-            if (moveDuration <= 0) {
-                isMoving = false;
-                cat.updateTextureForStage();
-            }
-        }
 
         if (Gdx.input.isTouched()) {
             touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
@@ -366,8 +309,6 @@ public class Main extends ApplicationAdapter {
         watchAdIcon.dispose();
         unityAdIcon.dispose();
         waterIcon.dispose();
-        for (Texture t : walkTextures)
-            t.dispose();
         font.dispose();
         saveProgress();
     }
