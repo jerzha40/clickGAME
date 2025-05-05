@@ -17,6 +17,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Main extends ApplicationAdapter {
+    private void handlePurchase(ShopItem item, Runnable onSuccess) {
+        if (score >= item.getPrice()) {
+            item.onClicked();
+            score -= item.getPrice();
+            onSuccess.run();
+            saveProgress();
+        } else {
+            item.onFailed();
+        }
+    }
+
     private void saveProgress() {
         prefs.putInteger("score", score);
         prefs.putInteger("food", food);
@@ -173,45 +184,25 @@ public class Main extends ApplicationAdapter {
                             spriteActive = true;
                             switch (item.getType()) {
                                 case FOOD:
-                                    if (score >= item.getPrice()) {
-                                        item.onClicked();
-                                        score -= item.getPrice();
+                                    handlePurchase(item, () -> {
                                         food++;
                                         cat.feed();
-                                        saveProgress();
-                                    } else {
-                                        item.onFailed();
-                                    }
+                                    });
                                     break;
                                 case MEDICINE:
-                                    if (score >= item.getPrice()) {
-                                        item.onClicked();
-                                        score -= item.getPrice();
+                                    handlePurchase(item, () -> {
                                         cat.giveMedicine();
-                                        saveProgress();
-                                    } else {
-                                        item.onFailed();
-                                    }
+                                    });
                                     break;
                                 case TOY:
-                                    if (score >= item.getPrice()) {
-                                        item.onClicked();
-                                        score -= item.getPrice();
+                                    handlePurchase(item, () -> {
                                         cat.play();
-                                        saveProgress();
-                                    } else {
-                                        item.onFailed();
-                                    }
+                                    });
                                     break;
                                 case WATER:
-                                    if (score >= item.getPrice()) {
-                                        item.onClicked();
-                                        score -= item.getPrice();
+                                    handlePurchase(item, () -> {
                                         cat.drink();
-                                        saveProgress();
-                                    } else {
-                                        item.onFailed();
-                                    }
+                                    });
                                     break;
                                 case ADS:
                                     if (item.getSprite().getTexture() == watchAdIcon) {
