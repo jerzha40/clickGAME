@@ -1,0 +1,8 @@
+{
+  "babyTexture": "cat_baby.png",
+  "juniorTexture": "cat_junior.png",
+  "adultTexture": "cat_adult.png",
+  "fullTexture": "cat_full.png",
+  "heartIcon": "heart_icon.png",
+  "meowSound": "meow.wav"
+}

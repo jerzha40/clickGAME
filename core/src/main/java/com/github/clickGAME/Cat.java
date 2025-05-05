@@ -8,7 +8,23 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
+
 public class Cat {
+
+    public static Cat load(CatConfig config, float x, float y) {
+        Cat cat = new Cat(x, y);
+        cat.setStageTextures(
+                new Texture(config.babyTexture),
+                new Texture(config.juniorTexture),
+                new Texture(config.adultTexture),
+                new Texture(config.fullTexture));
+        cat.setFeedbackTexture(new Texture(config.heartIcon));
+        cat.setMeowSound(Gdx.audio.newSound(Gdx.files.internal(config.meowSound)));
+        return cat;
+    }
+
     private Random random = new Random();
     private Sprite sprite;
     private float health = 100f;
@@ -19,6 +35,7 @@ public class Cat {
 
     private Array<FloatingIcon> floatingIcons = new Array<>();
     private Texture feedbackTexture;
+    private Sound meowSound;
 
     public enum Stage {
         BABY, JUNIOR, ADULT, FULL
@@ -134,6 +151,15 @@ public class Cat {
 
     public void setFeedbackTexture(Texture texture) {
         this.feedbackTexture = texture;
+    }
+
+    public void setMeowSound(Sound sound) {
+        this.meowSound = sound;
+    }
+
+    public void meow() {
+        if (meowSound != null)
+            meowSound.play();
     }
 
     public Sprite getSprite() {

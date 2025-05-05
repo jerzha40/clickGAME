@@ -88,15 +88,10 @@ public class Main extends ApplicationAdapter {
         score = prefs.getInteger("score", 0);
         float catX = prefs.getFloat("cat_x", VIRTUAL_WIDTH / 2f - 75);
         float catY = prefs.getFloat("cat_y", VIRTUAL_HEIGHT / 2f - 75);
-        Texture babyTexture = new Texture("cat_baby.png");
-        Texture juniorTexture = new Texture("cat_junior.png");
-        Texture adultTexture = new Texture("cat_adult.png");
-        Texture fullTexture = new Texture("cat_full.png");
-        cat = new Cat(catX, catY);
-        cat.setFeedbackTexture(new Texture("heart_icon.png"));
-        cat.setStageTextures(babyTexture, juniorTexture, adultTexture, fullTexture);
-
         Json json = new Json();
+        CatConfig catConfig = json.fromJson(CatConfig.class, Gdx.files.internal("cat_config.json"));
+        cat = Cat.load(catConfig, catX, catY);
+
         FileHandle file = Gdx.files.internal("shop_items.json");
         ShopItemConfig[] configs = json.fromJson(ShopItemConfig[].class, file);
         shopItems = new ArrayList<>();
