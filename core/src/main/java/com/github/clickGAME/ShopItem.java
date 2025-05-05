@@ -6,6 +6,16 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
 
 public class ShopItem {
+
+    public void dispose() {
+        if (sprite != null && sprite.getTexture() != null)
+            sprite.getTexture().dispose();
+        if (feedbackTexture != null)
+            feedbackTexture.dispose();
+        if (failureTexture != null)
+            failureTexture.dispose();
+    }
+
     public enum Type {
         FOOD, WATER, MEDICINE, TOY, ADS
     }

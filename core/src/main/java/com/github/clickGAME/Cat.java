@@ -198,6 +198,23 @@ public class Cat {
         return growth;
     }
 
+    public void dispose() {
+        if (sprite != null && sprite.getTexture() != null)
+            sprite.getTexture().dispose();
+        if (feedbackTexture != null)
+            feedbackTexture.dispose();
+        if (meowSound != null)
+            meowSound.dispose();
+        if (babyTexture != null)
+            babyTexture.dispose();
+        if (juniorTexture != null)
+            juniorTexture.dispose();
+        if (adultTexture != null)
+            adultTexture.dispose();
+        if (fullTexture != null)
+            fullTexture.dispose();
+    }
+
     public Stage getStage() {
         return stage;
     }

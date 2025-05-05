@@ -268,6 +268,13 @@ public class Main extends ApplicationAdapter {
         image.dispose();
         imageActive.dispose();
         font.dispose();
+        if (cat != null)
+            cat.dispose();
+        if (shopItems != null) {
+            for (ShopItem item : shopItems) {
+                item.dispose();
+            }
+        }
         saveProgress();
     }
 }
